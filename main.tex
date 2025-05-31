@@ -3,18 +3,23 @@
 \usepackage{listings}  % 引入 listings 宏包，用于显示代码
 \usepackage{enumitem}
 \usepackage{placeins}  % 导言区添加
-\title{面向长尾分布数据的自监督学习故障诊断方法研究}{}
+\usepackage{tabularx}
+\usepackage{array} % 若未加载 array 宏包
+\usepackage{makecell}
+\usepackage{xeCJK}
+\usepackage{fontspec}
+\title{面向长尾分布的对比学习故障诊断方法研究}{}
 
-% \author{王本浩}{Wang Benhao}
-% \advisor{*\chinesespace 教授}{Dr. Xue Zhou}
-% \school{电子科技大学(深圳)高等研究院}{Shenzhen Institute for Advanced Study, UESTC}
-% \major{电子信息}{Electronic Information}
-% \studentnumber{202222280517}
 \author{王本浩}{Wang Benhao}
-\advisor{*\chinesespace *}{*}
+\advisor{周雪\chinesespace 教授}{Dr. Xue Zhou}
 \school{电子科技大学(深圳)高等研究院}{Shenzhen Institute for Advanced Study, UESTC}
 \major{电子信息}{Electronic Information}
 \studentnumber{202222280517}
+% \author{王本浩}{Wang Benhao}
+% \advisor{*\chinesespace *}{*}
+% \school{电子科技大学(深圳)高等研究院}{Shenzhen Institute for Advanced Study, UESTC}
+% \major{电子信息}{Electronic Information}
+% \studentnumber{202222280517}
 % \author{*}{*}
 % \advisor{*\chinesespace 教授}{*}
 % \school{电子科技大学(深圳)高等研究院}{Shenzhen Institute for Advanced Study, UESTC}
@@ -25,23 +30,28 @@
 \makecover
 
 \begin{chineseabstract}
-    随着工业系统的不断复杂化，系统中可能出现的故障类型也越来越多，导致故障诊断数据集常呈现“长尾分布”，即大多数样本集中在少数几类(头部类)，而其他多数类别(尾部类)样本稀少。这种不平衡会使模型倾向于识别头部类，而忽视尾部类。然而，尾部类常包含危害更大的罕见故障，因此在故障诊断中更具价值。为应对这一问题，自监督学习成为主流方法，其训练分为两个阶段：首先通过无标签数据进行特征提取预训练，再在有标签数据上进行微调分类。
+    随着工业系统复杂度的不断提升，设备智能监测与故障诊断技术在保障工业生产安全和高效运行中扮演着关键角色。现实工业环境中的故障检测数据通常呈现典型的长尾分布，即头部类别(如正常状态)样本数量充足，而尾部类别(如罕见故障)样本稀少，造成严重的数据不平衡问题。这种长尾分布导致传统诊断模型往往偏向于头部类别，降低了对尾部故障的识别能力，影响了整体诊断效果和泛化能力。自监督对比学习作为一种无需大量标签即可学习有效特征的技术，近年来在故障诊断领域获得广泛关注。然而，现有对比学习方法一定程度依赖人工设计的数据增强模块，其性能受增强策略的差异性和语义一致性显著影响，在故障特征微弱或数据复杂的场景下表现出较大波动，且缺乏自适应调整能力，限制了其在工业实际中的应用。
 
-    本文旨在研究面向长尾分布数据的自监督学习故障诊断方法，主要内容包括：(1)传统的时域信号增强策略在训练简单暹罗孪生网络以进行故障诊断时，常难以有效提升其特征表征能力。本文从理论层面分析了该类网络中数据增强模块应具备的核心特性，进而提出了一种基于协方差矩阵适应进化策略的数据增强策略搜索算法。该算法通过在小规模数据上的迭代搜索得到一个最适用当前数据对象的增强策略参数，减轻了人工设计数据增强模块的时间成本。该算法训练的编码器层与SOTA算法SimCLR和BYOL相比有更加卓越的特征提取能力，并通过消融实验进一步验证了本算法在不同Batch Size设置下所表现出的稳定性与鲁棒性；(2)针对简单暹罗孪生网络在微调分类器层时更容易受到长尾效应的影响，从而分类准确率低于SimCLR的问题引入了MARC决策面校准算法。但MARC决策面校准算法并没有合理应用大规模无标签数据集中的信息，因此结合半监督学习的思想，将原模型预测的无监督数据的类别作为该数据的伪标签，并与原有标签数据集构成新的有标签数据集微调并校准网络。实验证明，本研究的方法在构建的长尾分布轴承故障诊断数据集上，成功超越了现有SOTA方法SimCLR和BYOL，取得了更优的性能。
+    为此，本文提出了一种基于自适应数据增强优化的对比学习故障诊断框架。该框架通过对比学习训练编码器，并对编码器提取的特征质量进行动态评估，利用 CMA-ES 算法作为控制器，自动调整数据增强模块的参数。以线性评估准确率作为反馈指标，解决了传统人工设计增强方法在准确性与多样性上的不足，有效促进孪生网络学习到更深层次的语义特征。在 CWRU 数据集上，本文方法在 SimSiam、SimCLR、BYOL、SwAV 和 MoCo v2 等五种主流对比学习模型上均取得显著提升。在训练集样本均匀分布时，在两个数据集上平均提升达2.56\%。在样本不平衡度极高的条件下，在两个数据集上平均提升达3.92\%，充分展示了其对长尾分布数据的鲁棒性和适应性。
 
-\chinesekeyword{故障诊断，长尾学习，自监督学习，孪生网络}
+    进一步地，本文设计了结合半监督学习与基于类别边距调节优化了微调过程的两阶段微调方法(Semi-Marc)，该方法在微调阶段引入决策边界动态调整机制，有效缓解了长尾分布对分类层性能的负面影响。通过伪标签指导的半监督训练和边界优化，Semi-Marc 显著提升了模型对尾部故障类别的识别能力。实验结果表明，在自适应数据增强优化基础上，Semi-Marc 方法在多种主流对比学习模型中均实现进一步性能提升，在两个数据集上平均提升约1.78\%，验证了其良好的通用性和有效性。综上所述，本文提出的方法为解决长尾分布下的故障诊断问题提供了有力支持，具有较好的应用前景和推广价值。
+
+
+\chinesekeyword{故障诊断，长尾学习，对比学习，孪生网络}
 \end{chineseabstract}
 
 \begin{englishabstract}
-    As modern industrial systems become increasingly complex, the number of fault types in a single system continues to grow, resulting in datasets that often exhibit a long-tailed distribution. Training models with long-tailed data introduces a significant class imbalance problem, and learning under long-tailed distributions is referred to as long-tail learning. Head classes typically refer to categories with a large number of samples, while tail classes refer to those with fewer samples. The goal of long-tail learning is to enable the model to perform well not only on head classes but also to effectively recognize data from tail classes. In this context, traditional intelligent fault diagnosis models often suffer from the issue of misclassifying tail-class samples as head-class samples. However, rare fault types in tail classes usually pose a greater threat to the system, making them more valuable in fault diagnosis.
+    With the increasing complexity of industrial systems, intelligent monitoring and fault diagnosis technologies play a critical role in ensuring the safety and efficient operation of industrial production. Fault detection data in real industrial environments typically exhibit a long-tail distribution, where head classes (such as normal states) have abundant samples, while tail classes (such as rare faults) have scarce data, causing severe data imbalance issues. This long-tail distribution often leads traditional diagnostic models to bias toward the head classes, reducing their ability to identify tail faults and thus affecting overall diagnostic performance and generalization capability.
 
-    Self-supervised learning has become a mainstream approach to addressing the long-tailed distribution problem. Its training process consists of two stages: self-supervised pre-training and fine-tuning. In the self-supervised pre-training stage, the model’s feature layers are trained using an unlabeled dataset and a proxy task. In the fine-tuning stage, a linear classification layer is attached to the feature layers and trained on a labeled dataset to build the final classification model.
-This thesis aims to study self-supervised learning-based fault diagnosis methods for long-tailed distribution data. The main contents include:
-(1) Data Augmentation Strategy Search Algorithm: Since directly applying a simple Siamese network-based contrastive learning method to the fault diagnosis domain does not achieve the expected performance, we theoretically analyze the essential characteristics required for the key data augmentation module in a simple Siamese network. Based on this, we propose a data augmentation strategy search algorithm using a covariance matrix adaptation evolution strategy (CMA-ES). This algorithm iteratively searches for the optimal augmentation strategy parameters on a small-scale dataset, reducing the time cost associated with manually designing augmentation modules. The encoder trained with this algorithm demonstrates superior feature extraction capabilities compared to state-of-the-art (SOTA) methods such as SimCLR and BYOL. Additionally, through ablation studies, we challenge the claim in SimCLR’s original paper that “a larger batch size benefits contrastive learning models.”
-(2) Semi-Supervised Decision Boundary Calibration: The simple Siamese network is more susceptible to the long-tail effect when fine-tuning the classifier layer, leading to lower classification accuracy than SimCLR. To mitigate this issue, we introduce the MARC decision boundary calibration algorithm. However, the MARC algorithm does not fully leverage the information from large-scale unlabeled datasets. To address this, we incorporate semi-supervised learning, where the model's predictions on unlabeled data are used as pseudo-labels. These pseudo-labeled samples are then combined with the original labeled dataset to fine-tune and calibrate the network.
-Experimental results demonstrate that our proposed method outperforms existing SOTA methods, including SimCLR and BYOL, on a constructed long-tailed bearing fault diagnosis dataset, achieving superior performance.
+    Self-supervised contrastive learning, as a technique capable of learning effective features without relying heavily on labeled data, has gained widespread attention in the fault diagnosis field in recent years. However, existing contrastive learning methods depend to some extent on manually designed data augmentation modules, and their performance is significantly influenced by the diversity and semantic consistency of these augmentations. In scenarios where fault features are weak or data is complex, such methods often show considerable fluctuations and lack adaptive adjustment capabilities, limiting their practical industrial applications.
 
-\englishkeyword{Fault Diagnosis, Long-Tail Learning, Self-Supervised Learning, Siamese Network}
+    To address these challenges, this paper proposes a contrastive learning fault diagnosis framework based on adaptive data augmentation optimization. The framework trains an encoder through contrastive learning and dynamically evaluates the quality of extracted features. Using the CMA-ES algorithm as a controller, it automatically adjusts the parameters of the data augmentation module. By employing linear evaluation accuracy as the feedback metric, the framework overcomes the shortcomings of traditional manual augmentation methods in terms of accuracy and diversity, effectively promoting the twin networks to learn deeper semantic features. On the CWRU dataset, our method achieves significant improvements across five mainstream contrastive learning models: SimSiam, SimCLR, BYOL, SwAV, and MoCo v2. When the training samples are uniformly distributed, the average accuracy improvement reaches 3.01\% on CWRU and 2.11\% on the PU dataset. Under conditions of extreme data imbalance, the average accuracy gain is 5.56\% for CWRU and 2.27\% for PU, demonstrating strong robustness and adaptability to long-tail distributed data.
+
+    Furthermore, we design a two-stage fine-tuning method named Semi-MARC that combines semi-supervised learning with a category margin-based dynamic optimization for fine-tuning. This method introduces a dynamic decision boundary adjustment mechanism during fine-tuning, effectively mitigating the negative impact of long-tail distributions on the classification layer performance. Through pseudo-label guided semi-supervised training and boundary optimization, Semi-MARC significantly enhances the model’s ability to recognize tail fault classes. Experimental results show that based on adaptive data augmentation optimization, Semi-MARC further improves performance across various mainstream contrastive learning models, with average accuracy gains of approximately 1.37\% on CWRU and 2.18\% on PU datasets, validating its good generalizability and effectiveness.
+
+    In summary, the proposed methods provide strong support for addressing fault diagnosis challenges under long-tail data distributions, offering promising application prospects and potential for broad adoption.
+
+\englishkeyword{Fault Diagnosis, Long-Tail Learning, Contrastive Learning, Siamese Network}
 \end{englishabstract}
 
 \thesistableofcontents
@@ -49,32 +59,55 @@ Experimental results demonstrate that our proposed method outperforms existing S
 \chapter{绪\hspace{6pt}论}
 
 \section{研究工作的背景与意义}
-智能故障诊断是预测性健康管理(Prognostics and Health Management, PHM)系统中的核心组成部分，旨在实现设备故障的高效检测与精准识别，从而保障系统的安全与稳定运行。PHM 技术在各类关键工业装备中得到广泛应用，如复杂机械系统和高精度运转设备，具有重要的工程实践价值。智能故障诊断的有效性直接关系到生产过程的安全性、连续性与可靠性，具有重要的现实意义，例如旋转机械是现代工业中的核心设备，长期在高温、疲劳、重载等复杂工况下运行，若发生故障，不仅可能引发严重事故，还会造成巨大的经济损失，甚至威胁人员安全。传传统的智能故障诊断方法主要依赖于信号处理技术进行特征提取，并结合机器学习算法实现故障类型的判别与分类。相关研究在特征工程与分类性能方面已取得了诸多进展。然而，面对异构且海量的数据时，基于人工设计的特征提取方法通常高度依赖领域知识，不仅开发周期较长，还对专家经验提出较高要求，限制了其在实际应用中的灵活性与可扩展性，而且人工提取的特征在某一特定工况下可能表现良好，但在其他工况或不同设备上可能失效，缺乏泛化能力。
+
+智能故障诊断是预测性健康管理(Prognostics and Health Management, PHM)系统中的核心组成部分，旨在实现设备故障的高效检测与精准识别，从而保障系统的安全与稳定运行。PHM 技术在各类关键工业装备中得到广泛应用，如复杂机械系统和高精度运转设备，具有重要的工程实践价值。智能故障诊断的有效性直接关系到生产过程的安全性、连续性与可靠性，具有重要的现实意义。例如，旋转机械是现代工业中的核心设备，长期在高温、疲劳、重载等复杂工况下运行，若发生故障，不仅可能引发严重事故，还会造成巨大的经济损失，甚至威胁人员安全。
+
+智能故障诊断技术已在多个典型工业领域得到广泛应用，包括制造业与工业自动化领域，通过对生产设备的状态监测和故障预警，有效提升生产效率和设备利用率；轨道交通与桥梁监测领域，利用故障诊断技术保障交通运输安全及基础设施的长期稳定；以及医疗设备领域，智能诊断有助于确保医疗设备的可靠性与医疗服务的连续性。
+
+\begin{figure}[h!]
+    \centering
+    \subfloat[]{
+        \includegraphics[width=0.3\textwidth]{app1.jpg}
+        \label{fig:app1}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.3\textwidth]{app2.png}
+        \label{fig:app2}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.3\textwidth]{app3.png}
+        \label{fig:app3}
+    }
+    \caption{智能故障诊断的典型应用场景示意图：(a) 制造业与工业自动化；(b) 轨道交通与桥梁监测；(c) 医疗设备}
+    \label{fig:application_scenes}
+\end{figure}
+
 在高维特征空间中，许多人工构造的特征可能存在冗余性或与目标任务无关，进而导致分类器性能波动，甚至引发过拟合问题，影响模型的泛化能力。特征提取的难题不仅增加了诊断系统的复杂性和实施成本，还影响了故障诊断模型的稳定性、可靠性和适用性。因此，如何自动化、智能化地提取具有鲁棒性和泛化能力的故障特征，成为智能故障诊断领域亟待解决的重要问题。
 
-现实中的故障检测数据通常呈现长尾分布\citing{nanjing2023faultdetection}，这是一种偏态分布，其中头部类包含大量正常数据，而尾部类则包含较少的故障数据。如何基于长尾分布的故障检测数据训练有效的故障检测模型，是一个具有现实意义的难点问题\citing{cumm2023faultdiagnosis}。长尾分布数据在现实世界中广泛存在，大规模数据集通常呈现出长尾分布的特性。长尾分布的学习是故障诊断领域中的一项常见挑战。例如，正常工作状态的数据通常远多于故障工作状态，或者常见故障状态的数据量远多于罕见故障状态。现实中的故障检测数据往往服从长尾分布，这种分布是一种典型的偏态分布，如图\ref{fig_long_tail}所示：大规模训练数据中，头部类别的样本数量占据主导地位，而尾部类别的样本数量相对稀少，并呈现逐渐递减的趋势。长尾分布的数据常伴随显著的样本不平衡问题，导致训练过程中模型倾向于关注头部类别，从而削弱了对尾部类别的识别性能。如图\ref{tsne_mean_distribution}所示，当样本分布均衡时，各类别在特征空间中具有清晰的区分边界，并占据较宽广的特征空间。然而，当数据分布失衡呈现长尾分布时(如图\ref{tsne_lt_distribution}所示)，尾部类别的特征分布变得狭窄，并依附于头部类别附近，从而扭曲了特征空间结构，降低了类别间的多样性与区分性。在使用长尾数据训练神经网络时，模型性能容易受到头部类别的影响，导致尾部类别的表现较差。然而，对尾部类别样本的错分往往带来更大的实际损失，因此研究尾部类别样本具有重要的现实意义。如何基于长尾分布的故障检测数据有效训练故障检测模型，已成为一个具有重要价值的研究难题。
+现实中的故障检测数据通常呈现长尾分布，这是一种偏态分布，其中头部类包含大量正常数据，而尾部类则包含较少的故障数据。长尾分布数据在现实世界中广泛存在，大规模数据集通常呈现出长尾分布的特性。面向长尾分布数据的学习任务，是故障诊断领域普遍面临的挑战之一，尤其在稀有故障的识别中更为突出。例如，正常工作状态的数据通常远多于故障工作状态，或者常见故障状态的数据量远多于罕见故障状态。现实中的故障检测数据往往服从长尾分布，这种分布是一种典型的偏态分布，如图~\ref{fig_long_tail}所示：大规模训练数据中，头部类别的样本数量占据主导地位，而尾部类别的样本数量相对稀少，并呈现逐渐递减的趋势。长尾分布的数据常伴随显著的样本不平衡问题，导致训练过程中模型倾向于关注头部类别，从而削弱了对尾部类别的识别性能。当样本分布均衡时，各类别在特征空间中具有清晰的区分边界，并占据较宽广的特征空间。然而，当数据分布失衡呈现长尾分布时，尾部类别的特征分布变得狭窄，并依附于头部类别附近，从而扭曲了特征空间结构，降低了类别间的多样性与区分性。在使用长尾数据训练神经网络时，模型性能容易受到头部类别的影响，导致尾部类别的表现较差。然而，对尾部类别样本的错分往往带来更大的实际损失，因此研究尾部类别样本具有重要的现实意义。如何基于长尾分布的故障检测数据有效训练故障检测模型，已成为一个具有重要价值的研究难题。
 \begin{figure}[h]
-    \includegraphics[width=10cm]{long_tail.pdf}
+    \includegraphics[width=9cm]{long_tail.pdf}
     \caption{长尾分布示意图}
     \label{fig_long_tail}
 \end{figure}
 
 长尾分布数据对现代深度学习框架提出了巨大的挑战。即使使用数据重采样、类平衡损失等专门技术，在极端类不平衡的情况下，模型性能仍然显著下降。因此，为了更有效地应对这一挑战，深入理解长尾学习对特征分布的影响至关重要。然而，与平衡数据的学习情景不同，长尾学习中的标签扮演着一个复杂而矛盾的角色，形成了标签价值的困境。一方面，有标签的监督学习通常比无监督学习能够训练出更准确的分类器，这突显了标签的积极作用；另一方面，长尾的标签分布会自然引入“标签偏差”，其中头部类别在很大程度上驱动决策边界的学习，导致对尾部类别的压制。这表明，标签既是推动学习的动力，也可能成为性能下降的原因，可以说是一把双刃剑。自监督学习的提出旨在减少对人工标注数据的依赖，使得即便在缺乏标注数据的情况下，网络仍能高效地进行训练。自监督学习在预训练阶段通过人工构造输入数据的代理任务使特征层网络学习到有效的特征表示，完全摆脱了对标签的依赖。只在对最终的分类器层进行微调过程中运用了标签，从而最大限度地减小“标签偏差”带来的影响。文献\cite{zhang2021federated}指出，额外的自监督预训练能够显著提升常规长尾学习算法的性能，并已在CIFAR-LT、ImageNet-LT等视觉识别长尾数据集上得到验证。尽管在故障诊断的长尾学习领域，半监督学习、集成学习、样本加权等方法已经取得一定进展，但应用自监督学习方法的研究仍相对较少。因此，应用自监督学习解决长尾分布数据故障诊断问题仍是一个具有重要意义的研究方向。
-\begin{figure}[h]
-    \subfloat[]{
-        \label{tsne_mean_distribution}
-        \includegraphics[width=6.77cm]{tsne_mean_distribution.png}
-    }
-    \subfloat[]{
-        \label{tsne_lt_distribution}
-        \includegraphics[width=6.77cm]{tsne_lt_distribution.png}
-    }
-    \caption{均匀/长尾分布数据的tsne图(a)样本均匀分布时的T-SNE分布图(b)尾部类“1”类样本个为30，头部类样本个数为180个时的T-SNE分布图}
-    \label{long-tail result}
-\end{figure}
+% \begin{figure}[h]
+%     \subfloat[]{
+%         \label{tsne_mean_distribution}
+%         \includegraphics[width=6.77cm]{tsne_mean_distribution.png}
+%     }
+%     \subfloat[]{
+%         \label{tsne_lt_distribution}
+%         \includegraphics[width=6.77cm]{tsne_lt_distribution.png}
+%     }
+%     \caption{均匀/长尾分布数据的tsne图(a)样本均匀分布时的T-SNE分布图(b)尾部类“1”类样本个为30，头部类样本个数为180个时的T-SNE分布图}
+%     \label{long-tail result}
+% \end{figure}
 
 % 目前，在视觉识别领域，长尾学习已提出多种前沿方法，如变分自编码器\citing{kingma2013auto}、生成对抗网络\citing{goodfellow2020generative}、CB(Class-Balanced)Loss\citing{cui2019class}、自监督学习\citing{yang2020rethinking}、以及MARC决策面调整算法\citing{wang2023margin}等。然而，在故障诊断的长尾学习领域，常见的方案包括半监督学习\citing{nanjing2023faultdetection}、集成学习\citing{吴亮2023基于多级学习的长尾分布下交通多目标检测}、样本加权\citing{cumm2023faultdiagnosis}等，相较而言，前沿的长尾学习方法在故障诊断中的应用较少。因此，提出一个结合前沿长尾学习方法的故障诊断模型具有重要的现实意义。
 \FloatBarrier  % 阻止后续浮动体越过这条线
+
 \section{故障诊断基本流程}
 故障诊断的基本流程通常包括数据采集、信号预处理、特征选择、模型训练与优化、以及故障识别与诊断结果分析等步骤。在现代工业系统中，设备状态的监测依赖于多种传感器，如加速度传感器、声发射传感器、电流传感器和温度传感器等，以采集振动、声音、电流和温度等信号，从而提供反映设备健康状况的数据基础。由于采集到的原始信号往往受到噪声干扰，信号预处理成为数据分析的关键步骤，常见的方法包括滤波、归一化、去趋势以及信号分解，以提高数据质量并增强关键特征的可识别性。
 
@@ -84,22 +117,49 @@ Experimental results demonstrate that our proposed method outperforms existing S
 
 在训练得到故障诊断模型后，测试数据的输入可实现自动故障识别与分类。常见的故障类型包括轴承故障(如滚动体故障、内圈故障和外圈故障)、齿轮故障(如齿面点蚀、断齿和偏磨)以及电机故障(如定子故障、转子故障)等。故障分类的准确性通常采用准确率、召回率、F1-score等指标进行评估，以确保模型的可靠性和实用性。最终，故障诊断的核心目标是为设备维护和运行决策提供有效支持。通过诊断结果分析，可以实现设备健康状态评估、故障预警、剩余寿命预测以及故障溯源分析等功能，从而优化维护策略，提高设备运行的安全性和可靠性。随着深度学习、迁移学习和自监督学习等技术的不断发展，智能故障诊断方法正在逐步突破传统方法的局限，未来研究将进一步探索如何在复杂工况下提升诊断模型的鲁棒性和适用性，以推动智能运维的发展。
 \FloatBarrier  % 阻止后续浮动体越过这条线
-\section{故障诊断的研究现状}
-近年来，故障诊断的研究如火如荼。薛阳等人\citing{xue2022multimodal}基于CWRU滚动轴承故障数据提出了将多模态融合与卷积神经网络相结合，提取了时域、频域两个模态的特征，实现时频域双模态融合对故障类型的联合诊断，相较基于单时域和单频域的卷积神经网络故障诊断模型都有提升。郭文军等人\citing{郭文军2022EMD}构建了经验模态分解与自回归相融合的深度特诊提取方法，提升了隐层筛选故障特征的能力。在构造故障诊断模型时特征提取显得颇为重要，因此故障诊断技术的特征提取得到了国内外学者的广泛关注。传统的时域信号特征提取方法，如FFT，小波包分解，小波变换，经验模态分解都得到了较好的应用。近年来，随着神经网络的发展，基于机器学习的特征提取方法的研究也如火如荼，如基于粒子群优化的自适应多稳态欠阻尼随机共振方法\citing{杨波2022自适应随机共振在信号特征提取中的应用}，堆叠自动编码器\citing{蒋爱国2018基于多模态堆叠自动编码器的感应电机故障诊断}，多尺度核卷积神经网络\citing{李永刚2023一种基于}，递归图编码将振动信号转为增强信号特征的二维图像\citing{张龙2023采用递归图编码技术与残差网络的滚动轴承故障诊断}。
 
-\section{长尾学习的发展历程和研究现状}
-国内外在处理长尾问题时通常从三个方面着手，如图\ref{longtail_solution}所示：一是样本层面，采取欠采样(如随机欠采样、NearMiss\citing{shen2016near}、ENN\citing{wilson1972asymptotic})或过采样(如随机过采样、SMOTE\citing{chawla2002smote}、变分自编码器\citing{kingma2013auto}、生成对抗网络\citing{goodfellow2020generative})的方法。然而，由于新生成的样本中可能掺杂噪声，仍可能导致模型出现误判；二是损失函数层面，使用类平衡的损失函数，如基于数据频率逆加权\citing{huang2016learning}，OHEM(Online Hard Example Mining)、Focal Loss\citing{lin2017focal}，以及最新提出的CB(Class-Balanced)Loss\citing{cui2019class}；三是模型层面，如通过集成学习、半监督和自监督学习\citing{yang2020rethinking}、MARC决策面调整算法\citing{wang2023margin}，采用少数类样本与等量多数类样本的组合进行模型训练，还有迁移学习\citing{liu2019large,yin2019feature}、度量学习\citing{you2018scalable,zhang2017range} 和元学习\citing{jamal2020rethinking,shu2019meta}，也得到了探索。最近的研究还发现，解耦特征层与分类器的结构可以带来更好的长尾学习结果\citing{zhou2020bbn, kang2019decoupling}。
-在长尾分布问题的研究上，国内外已有大量的探索。例如，Liu J等人\citing{liu2020deep}提出了一种基于特征云的数据增强方法，通过从方差较大的头部类中学习类内多样性，并将其转移到尾部类，从而改善尾部类的分类效果，该方法已成功应用于人脸识别领域。Yang Y等人\citing{yang2020rethinking}探讨了不平衡样本标签在模型训练中的价值，提出通过半监督学习方法利用原模型识别无标签数据，并通过伪标签扩充原数据集，同时验证了自监督预训练在长尾学习中的有效性，且证明样本维度越高，性能提升越显著。吴磊等人\citing{wu2023personalized}提出了一种针对长尾图像的个性化专家识别算法，基于残差网络构建多专家学习模型，并引入个性化学习、信息融合与增强模块。通过两阶段学习方法，不仅显著提升了整体识别精度，还特别增强了中尾部类别的识别效果。吴亮等人\citing{吴亮2023基于多级学习的长尾分布下交通多目标检测}提出了多级分组分类器，以提升尾部类性能，同时避免头部类性能损失，并设计了基于多头注意力机制的分组特征重融合模块，为多级分类器输入更精细的特征。此外，基于多级分类器，他们还提出了Logit联合调整方法，以缓解组间不平衡问题。Wang Y等人\citing{wang2023margin}介绍了适用于长尾视觉识别的MARC决策面调整算法，通过对模型输出的预测分数进行额外训练，仅需三行代码便能实现。Cui Y等人\citing{cui2019class}提出了CB(Class-Balanced)损失函数，通过乘以与“独特”样本数量相关的因子，缓解了类别不平衡问题。CB因子与超参数β有关，通过平滑1到最常见类别的不平衡因子1/n来实现。
+\section{故障诊断的研究现状}
+近年来，故障诊断的研究如火如荼。薛阳等人\citing{xue2022multimodal}基于CWRU滚动轴承故障数据提出将多模态结合与卷积神经网络相结合，提取时域和频域两个模态的特征，实现时频域双模态结合对故障类型的联合诊断，相较于单时域或单频域的卷积神经网络故障诊断模型均有提升。郭文军等人\citing{郭文军2022EMD}构建了经验模态分解与自回归相结合的深度特征提取方法，增强了隐层筛选故障特征的能力。特征提取在构建故障诊断模型中至关重要，因此得到了国内外学者的广泛关注。传统时域信号特征提取方法，如快速傅里叶变换、小波包分解、小波变换和经验模态分解均有良好应用。近年来，随着神经网络的发展，基于机器学习的特征提取方法也迅速发展，诸如基于粒子群优化的自适应多稳态欠阻尼随机共振方法\citing{杨波2022自适应随机共振在信号特征提取中的应用}，堆叠自动编码器\citing{蒋爱国2018基于多模态堆叠自动编码器的感应电机故障诊断}，多尺度核卷积神经网络\citing{李永刚2023一种基于}，以及利用递归图编码将振动信号转换为增强信号特征的二维图像的技术\citing{张龙2023采用递归图编码技术与残差网络的滚动轴承故障诊断}均取得了显著成果。
+
+随着深度学习技术的快速发展，故障诊断领域涌现出大量基于深度神经网络的方法，进一步提升了故障识别的准确率和自动化程度。卷积神经网络因其强大的特征提取能力，广泛应用于时域、频域及时频域信号的特征学习。周文宣等人\citing{周文宣2021一种基于多尺度卷积神经网络的滚动轴承故障诊断方法}基于多尺度卷积神经网络实现了旋转机械故障识别，显著提升了复杂工况下故障检测效果。循环神经网络与长短时记忆网络在序列数据建模方面表现出色，适用于机械振动等时间序列信号的故障诊断。
+
+与此同时，自监督学习与对比学习技术逐渐受到关注。通过设计预训练任务，无需大量标注数据即可学习具有判别力的特征表示。孙伟等人提出基于对比学习的轴承故障诊断方法，有效提升了模型对未知故障类型的识别能力。孪生网络作为对比学习的重要架构，通过构建正负样本对优化相似度度量，在故障诊断领域得到应用，有效缓解了标签稀缺问题。
+
+然而，实际工业数据中普遍存在长尾分布现象，大多数故障类型样本稀少，少数类别样本丰富，严重影响诊断模型的泛化能力和尾部类别识别准确率。针对这一问题，部分研究开始采用长尾学习策略，包括重采样、重加权以及基于边距调整的决策边界校准，提升尾部类别的检测性能。尽管如此，结合自监督学习和长尾学习的研究仍较有限，且如何充分利用无标签数据辅助模型学习仍是关键挑战。
+
+综上，智能故障诊断领域正经历从传统特征工程向端到端深度学习与自监督学习的转变，长尾分布和样本不平衡成为研究重点。本文基于对比学习与自监督学习框架，结合自适应数据增强和半监督边距调整技术，致力于提升故障诊断模型在长尾场景下的鲁棒性和识别性能。
+
+
+\section{长尾分布下的自监督与对比学习研究现状}
+\subsection{长尾学习研究现状}
+在现实世界中，许多任务的数据分布存在“长尾”现象，即少数类样本数量远少于多数类样本，导致模型在训练时更倾向于学习头部类(多数类)的特征，而忽视尾部类(少数类)。这种类别不平衡现象在故障诊断任务中尤为常见，特别是在设备健康状态数据采集中，正常状态样本往往远多于各类故障状态，容易造成诊断模型对少见故障识别能力不足。
+
+针对这一问题，国内外学者提出了多种应对策略，主要分为三个方面，如图~\ref{longtail_solution}所示：
+
+首先是在样本层面进行调整，包括欠采样与过采样。欠采样方法如随机欠采样、NearMiss~\citing{shen2016near}、编辑最近邻(ENN)~\citing{wilson1972asymptotic}等，试图通过减少头部类样本平衡整体数据分布；过采样方法如随机过采样、SMOTE~\citing{chawla2002smote}、变分自编码器(VAE)~\citing{kingma2013auto}和生成对抗网络(GAN)~\citing{goodfellow2020generative}等则致力于通过合成新样本扩充尾部类数量。然而，采样策略可能引入噪声，影响数据分布的真实性，导致模型误判或过拟合。
+
+其次是在损失函数层面引入类别平衡机制，通过修改损失函数的权重以强调尾部类样本。例如，类频率逆加权方法~\citing{huang2016learning}，在线难例挖掘(OHEM)与Focal Loss~\citing{lin2017focal}通过对难分类样本赋予更高权重，增强模型对不平衡数据的敏感性。Cui等人提出的CB(Class-Balanced)Loss~\citing{cui2019class}通过引入与“有效样本数”相关的平衡因子，进一步缓解了极度不均的类别分布。
+
+第三类方法是模型结构层面的改进，包括集成学习、自监督学习、迁移学习、度量学习与元学习等新兴技术。例如，MARC(Margin Calibration)算法~\citing{wang2023margin}通过边距调整优化模型的决策边界，有效提升尾部类识别能力。Yang等人~\citing{yang2020rethinking}结合半监督与自监督学习，在无标签数据中进行伪标签扩充，改善尾部类特征分布，提高整体模型性能。此外，通过结构解耦，即在特征提取器与分类器之间建立独立训练机制~\citing{zhou2020bbn,kang2019decoupling}，可缓解分类器对头部类的依赖性，从而增强尾部类识别能力。
+
+目前，国内外对长尾学习问题的研究已取得丰富成果。例如，Liu等人~\citing{liu2020deep}提出一种基于“特征云”的数据增强方法，利用头部类样本的类内方差信息迁移至尾部类，以提升尾部类特征表达能力，该方法已在面部识别中验证有效性。Yang等人~\citing{yang2020rethinking}通过自监督预训练和半监督微调相结合的方法显著提高长尾分类准确性，并指出高维特征空间中的对比学习在长尾学习中具有明显优势。
+
+在图像识别领域，吴磊等人~\citing{wu2023personalized}设计了结合残差结构的多专家识别框架，通过个性化信息增强模块和两阶段训练机制，有效提高中尾部类别的识别性能。吴亮等人~\citing{吴亮2023基于多级学习的长尾分布下交通多目标检测}则提出多级分组分类器与注意力特征重结合模块，通过Logit联合调整缓解组间不平衡问题，实现了更高的精度与鲁棒性。
 
 \begin{figure}[h]
-    \includegraphics[width=12cm]{longtail_solution.png}
+    \centering
+    \includegraphics[width=11cm]{longtail_solution.png}
     \caption{长尾学习常见方法}
     \label{longtail_solution}
 \end{figure}
 
-综上所述，文献\cite{yang2020rethinking}为自监督预训练在故障诊断长尾学习中的应用提供了良好的启示，但半监督学习方法在现实长尾学习模型中的适用性尚待验证。文献\cite{wu2023personalized,吴亮2023基于多级学习的长尾分布下交通多目标检测}介绍的集成学习方法有助于减弱样本不平衡效应，虽然是常规方法，但如果在训练过程中融合自监督预训练，性能可能会得到进一步提升。文献\cite{wang2023margin}提出的决策面调整算法适用于一般长尾学习模型，但其在故障诊断中的可行性仍需进一步探讨，且该算法对模型性能提升的理论性解释也尚不完善。文献\cite{cui2019class}提出的损失函数方法具有创新性，但超参数$\beta$的人工选择在实际应用中可能面临一定的挑战。以上研究多集中于视觉长尾学习领域，并且在CIFAR-LT、ImageNet-LT等视觉识别数据集上取得了良好效果，而在故障诊断长尾学习领域，前沿的长尾学习算法应用较为匮乏。因此，将前沿的长尾学习算法应用于故障诊断领域，具有重要的研究价值，本文将着重研究模型层面的自监督长尾学习方法，分别研究自监督预训练和微调阶段过程的优化。
+综合来看，目前多数研究集中在计算机视觉领域，尤其是在CIFAR-LT、ImageNet-LT等标准图像数据集上验证算法性能，而在故障诊断这一工业领域，针对长尾学习问题的研究尚不充分。尽管Yang等人~\citing{yang2020rethinking}的研究为故障诊断中应用自监督预训练提供了良好启示，但其对半监督机制的适用性尚待进一步论证。吴磊~\citing{wu2023personalized}与吴亮~\citing{吴亮2023基于多级学习的长尾分布下交通多目标检测}提出的集成学习结构在提升尾部类性能方面表现优异，若结合自监督机制或迁移学习，其性能有望进一步提升。Wang等人~\citing{wang2023margin}提出的MARC算法结构简洁，适应性强，但其在故障诊断中的适用性与有效性仍需深入研究。
+
+因此，将前沿长尾学习方法尤其是自监督对比学习方法引入故障诊断任务中，并在模型的预训练与微调阶段进行系统优化，不仅具有理论创新意义，更具重要的工程应用价值。本文将重点围绕模型层面的改进展开研究，探讨自监督预训练与长尾学习结合的深度诊断框架设计。
+
 \FloatBarrier  % 阻止后续浮动体越过这条线
-\section{自监督学习的发展历程和研究现状}
+
+\subsection{自监督学习的发展历程和研究现状}
 
 2019年，MoCo\citing{He_2020_CVPR}的提出掀起了视觉自监督学习的热潮，随后SimCLR\citing{chen2020simple}、BYOL\citing{grill2020bootstrap}、SwAV\citing{caron2020unsupervised}等主流自监督学习算法相继问世，使得该领域呈现出百花齐放、百家争鸣的繁荣局面。2021年末，MAE\citing{he2022masked}的提出进一步促进了自监督学习的发展，并将其提升到了一个全新的高度。然而，这一成就的背后，自监督学习经历了长期的迭代与发展。
 
@@ -109,30 +169,28 @@ Experimental results demonstrate that our proposed method outperforms existing S
 
 综上所述，尽管文献\cite{doersch2015unsupervised, zhang2016colorful, gidaris2018unsupervised}等研究在计算机视觉领域取得了重要进展，但其方法在故障诊断任务中的直接应用仍面临一定困难。然而，这些研究的思路为故障诊断领域的自监督预训练任务设计提供了有益的启示。例如，文献\cite{senanayaka2020toward}提出的One-Class SVM生成的标签可以结合聚类算法，使其适用于多分类任务；文献\cite{zhang2021federated}提出的信号块交换方法与文献\cite{doersch2015unsupervised}提出的图像块位置预测任务在思路上具有一定相似性，值得探索其结合的可能性。此外，文献\cite{zhang2022prior, senanayaka2020toward, zhang2021federated}提出的自监督预训练方法在任务设计上仍具有较大的创新空间，且在长尾学习任务中的应用尚未得到充分探索。因此，故障诊断领域的自监督预训练仍处于发展初期，借鉴计算机视觉领域的前沿自监督任务，提出更具创新性和更高性能的自监督预训练任务，仍具有重要的研究价值和挑战。
 \FloatBarrier  % 阻止后续浮动体越过这条线
-\section{对比自监督学习和孪生网络的发展历程和研究现状}
 
-自监督学习的核心目标是在无人工标注的情况下自动提取有效特征\citing{min2021cross}。近年来，对比自监督学习(contrastive self-supervised learning)作为无监督学习的重要分支之一，通过构造正负样本对，使模型能够学习更具判别性的特征表示。它逐渐成为研究热点，并在图像识别任务中取得了最先进的(SOTA)性能。许多相关算法相继被提出，例如动量对比学习(Momentum Contrast, MoCo)\citing{He_2020_CVPR}、对比预测编码(Contrastive Predictive Coding, CPC)\citing{oord2018representation}以及用于视觉表征学习的简单对比学习框架(SimCLR)\citing{chen2020simple}。
+\subsection{对比自监督学习和孪生网络的发展历程和研究现状}
 
-这些方法的核心思想是通过拉近相同样本的不同视图(正样本对)并推远不同样本(负样本对)来学习有意义的特征表示。对比学习方法通常依赖存储在记忆库(memory bank)中的大量负样本，以提高对比学习效果\citing{wu2018unsupervised}。此外，一些其他对比学习方法不依赖负样本，而是计算两个正样本对之间的相似性，例如SwAV(Swapping Assignments between multiple Views)\citing{caron2020unsupervised}、BYOL(Bootstrap Your Own Latent)\citing{grill2020bootstrap}以及SDCT(Self-supervised Deep Correlation Tracking)\citing{yuan2020self}。
+自监督学习的核心目标是在无人工标注的情况下自动提取有效特征\citing{min2021cross}。近年来，对比自监督学习作为无监督学习的重要分支之一，通过构造正负样本对，使模型能够学习更具判别性的特征表示。它逐渐成为研究热点，并在图像识别任务中取得了最先进的性能。许多相关算法相继被提出，例如动量对比学习\citing{He_2020_CVPR}、对比预测编码\citing{oord2018representation}以及用于视觉表征学习的简单对比学习框架\citing{chen2020simple}。
 
-在对比自监督学习中，孪生网络(Siamese Network)因其适用于比较不同样本的网络结构，具有独特优势。Laine和Aila\citing{laine2016temporal}提出了基于孪生网络的$\pi$-model，用于训练深度神经网络，该方法在半监督学习场景下依赖不同的正则化规则与数据增强策略。Zheng和Yang\citing{zheng2019unsupervised}提出了一种“记忆正则化”机制，其核心思想是让主模型自身(而非外部模块)学习域内知识，以实现无监督场景自适应。Zhao等人\citing{zhao2021deep}提出了基于相互学习(mutual learning)和知识蒸馏(knowledge distillation)的训练方法，以提高视觉目标跟踪任务的性能。
+这些方法的核心思想是通过拉近相同样本的不同视图(正样本对)并推远不同样本(负样本对)来学习有意义的特征表示。对比学习方法通常依赖存储在记忆库中的大量负样本，以提高对比学习效果\citing{wu2018unsupervised}。此外，一些其他对比学习方法不依赖负样本，而是计算两个正样本对之间的相似性，例如SwAV\citing{caron2020unsupervised}、BYOL\citing{grill2020bootstrap}以及SDCT\citing{yuan2020self}。
 
-上述研究均在各自领域中引入孪生网络的思想，以解决特定问题。本文受到SimSiam\citing{chen2021exploring}的启发，SimSiam采用简化的孪生网络结构，并在计算机视觉(CV)任务中展现出卓越性能。基于此，本文提出了一种新颖的轴承故障诊断框架，该框架可适用于由不同神经网络层构建的多种模型。与其他主流方法相比，SimSiam 具有以下三大优势：
-\begin{enumerate}[label={(\arabic*)}]
-    \item 无需构造负样本对；
-    \item 无需采用大批量训练；
-    \item 无需使用动量编码器(momentum encoder)。
-\end{enumerate}
-由于 SimSiam 模型高度依赖数据增强模块提供的视图差异性与语义一致性，其在故障诊断领域的性能受到增强策略质量的显著影响，尤其在故障特征弱或数据分布复杂的场景下，表现出较大的性能波动。本文从理论上分析了SimSiam数据增强模块对训练的意义以及所需要的数据增强方法需要具备的特质，同时通过一种自动搜索最优增强参数的方法解决SimSiam需要经过人工挑选数据增强方法和设定数据增强模块的参数的问题。
+在对比自监督学习中，孪生网络(Siamese Network)因其适用于比较不同样本的网络结构，具有独特优势。Laine和Aila\citing{laine2016temporal}提出了基于孪生网络的$\pi$-model，用于训练深度神经网络，该方法在半监督学习场景下依赖不同的正则化规则与数据增强策略。Zheng和Yang\citing{zheng2019unsupervised}提出了一种“记忆正则化”机制，其核心思想是让主模型自身(而非外部模块)学习域内知识，以实现无监督场景自适应。Zhao等人\citing{zhao2021deep}提出了基于相互学习和知识蒸馏的训练方法，以提高视觉目标跟踪任务的性能。SimSiam\citing{chen2021exploring}采用简化的孪生网络结构，该网络无需构造负样本对、大批量训练和动量编码器，并在计算机视觉任务中展现出卓越性能。
+
+由于对比学习模型高度依赖数据增强模块提供的视图差异性与语义一致性，其在故障诊断领域的性能受到增强策略质量的显著影响，尤其在故障特征弱或数据分布复杂的场景下，表现出较大的性能波动。本文从理论上分析了对比学习数据增强模块对训练的意义以及所需要的数据增强方法需要具备的特质，同时通过一种自动搜索最优增强参数的方法解决对比学习需要经过人工挑选数据增强方法和设定数据增强模块的参数的问题。
 \FloatBarrier  % 阻止后续浮动体越过这条线
+
 \section{本文的主要贡献与创新}
 
 本论文聚焦于面向长尾分布数据的自监督学习故障诊断，主要的创新点和贡献如下：
 
 \begin{enumerate}[label={(\arabic*)}]
-    \item 提出了基于协方差矩阵适应进化策略的数据增强策略搜索算法优化的简单暹罗孪生网络的对比学习自监督预训练故障诊断框架。
-    \item 通过半监督学习优化了决策面调整算法从而减小微调过程受长尾分布的影响。
+    \item 提出了一种基于自适应数据增强优化的对比学习故障诊断网络框架。该框架引入 CMA-ES 控制策略，根据编码器输出特征的分类性能动态调整数据增强参数，从而提升增强策略的多样性与语义一致性，有效增强模型对复杂和稀疏故障模式的感知能力。
+    
+    \item 在上述框架基础上，进一步提出并优化了一种结合半监督学习与类别边距调节的两阶段微调方法(Semi-Marc)。该方法通过伪标签引导的半监督学习与决策边界动态调整机制，有效缓解了长尾分布对分类层带来的不利影响，提升了模型对低频故障类别的判别能力与泛化性能。
 \end{enumerate}
+
 
 \section{本论文的结构安排}
 
@@ -140,65 +198,213 @@ Experimental results demonstrate that our proposed method outperforms existing S
 
 第一章介绍了研究的背景与意义，分析了传统故障诊断方法在处理长尾分布数据时面临的挑战，并重点回顾了国内外在长尾学习算法领域的研究进展与现有局限性。
 
-第二章阐述了长尾学习与自监督学习范式的基本概念，介绍了为提出简单孪生网络故障诊断框架的理论基础，并介绍了实验使用的数据集和研究对象。
+第二章阐述了长尾学习与自监督学习范式的基本概念，介绍了为孪生网络对比学习的理论基础，并介绍了实验使用的数据集和研究对象。
 
-第三章提出了基于简单孪生网络为骨干网络的自监督预训练故障诊断框架，详细描述了框架各模块的设计与实现，并从实验与理论两个层面验证了框架的有效性。通过准确率、t-SNE分布图以及对Batch Size等参数的敏感性分析，证明了该方法在性能和稳定性上优于现有SOTA的自监督学习方法。
+第三章提出了基于自适应数据增强优化的对比学习故障诊断网络框架，详细描述了框架各模块的设计与实现，并从实验与理论两个层面验证了框架的有效性。通过准确率、t-SNE分布图以及对无标签数据集规模等参数的敏感性分析，证明了该自适应数据增强框架在现有SOTA的对比学习方法能有较大的提升。
 
-第四章提出了基于半监督学习与决策面调整相结合的微调框架，旨在减轻简单孪生网络在微调阶段受长尾效应影响的问题。实验结果表明，该微调框架不仅提升了简单孪生网络的整体性能，而且在其他模型中同样具有较好的效果，展示了其良好的普适性。
+第四章提出了结合半监督边距调整优化的对比学习的微调框架，旨在减轻孪生网络在微调阶段受长尾效应影响的问题。实验结果表明，该微调框架提升了诸多模型的整体性能，展示了其良好的普适性。
 
 第五章总结了全文的研究工作，并对未来可能的研究方向进行了展望。
 
 
 \chapter{长尾学习及相关方法的理论基础与轴承故障数据集}
 \section{自监督学习相关理论}
-自监督学习是一种范式，利用“代理任务”(pretext)自监督学习旨在挖掘大规模无标签数据中所蕴含的潜在结构，通过构造辅助任务生成伪监督信号，进而引导网络学习具备迁移至下游任务能力的通用表征。如图\ref{self_supervise_procedure}所示，该方法通常包含两个阶段：首先进行自监督预训练以学习初始表征，然后通过微调阶段在特定下游任务上进一步优化模型性能。在自监督预训练阶段，完全忽略数据的标签信息，专注于数据本身的特征学习。通过设计合理的自监督任务，引导模型从不平衡数据中提取与标签无关的潜在特征表示，以此减少类别偏差对模型初始化的影响，同时增强模型的泛化能力。在微调阶段，使用自监督预训练得到的网络权重作为初始化，并结合任务相关的监督信息进行优化，以提升模型在特定任务上的表现，同时保留预训练阶段学到的通用特征，从而提高模型的稳健性和泛化能力。在此基础上，可结合任意标准的不平衡学习技术进行后续训练，以学习最终的分类模型。由于预训练阶段和正常训练阶段是独立的，自监督学习可以与现有的不平衡学习方法无缝结合，增强模型性能，且自监督预训练阶段不依赖标签，使得网络能学习到更通用、更鲁棒的特征表示，从而避免了类别不平衡对特征学习的负面影响。
+自监督学习是一种近年来迅速发展的表示学习范式，旨在无需依赖人工标注的前提下，从大量未标注数据中自动学习出具有泛化能力的特征表示。这一方法的核心在于通过构造合理的辅助任务，生成伪监督信号，进而引导模型在原始数据上进行表征学习。这样一来，模型可以从海量无标签数据中挖掘出潜在的结构规律，学习出能够迁移到下游任务的通用特征。如图~\ref{self_supervise_procedure}所示，自监督学习的整体流程通常可分为两个阶段：首先是预训练阶段，然后是微调阶段。
+
 \begin{figure}[h]
-    \includegraphics[width=10cm]{self_supervise_procedure.pdf}
+    \includegraphics[width=12cm]{self_supervise_procedure.pdf}
     \caption{自监督训练范式流程}
     \label{self_supervise_procedure}
 \end{figure}
-\FloatBarrier  % 阻止后续浮动体越过这条线
+
+在预训练阶段，完全不使用人工标注的类别信息，而是依靠数据自身的属性构建任务，引导模型从输入中提取关键特征。常见的辅助任务包括图像重建、遮挡区域预测、视角一致性判断和样本对比等，这些任务都能促使模型学习到更深层次、更具鲁棒性的表征。在这一过程中，模型从数据中获取的信息更加全面，不仅可以规避类别标签稀缺带来的限制，还能有效减缓类别不均衡对模型初始化的影响。由于模型学习到的是数据中的通用结构信息，因此训练出的特征在多种任务和不同数据分布中均具有良好的迁移能力，有助于提升模型的泛化性能。
+
+在微调阶段，利用自监督预训练获得的网络参数作为模型的初始状态，再结合具体任务的监督信号进行优化训练。这一阶段的目标是使模型在保持通用特征的基础上，进一步学习与特定任务相关的判别信息。通过这种方式，模型不仅能够在目标任务上获得更优的表现，还能在面对复杂场景或数据分布变化时保持更强的稳健性。值得注意的是，自监督预训练与微调训练是相互独立的两个过程，因此可以灵活地结合各种已有的不平衡学习方法，如样本重加权、损失函数调整和数据增强等技术，进一步提高模型在类别不均衡环境下的性能表现。
+
+总的来看，自监督学习为特征提取提供了一种高效、灵活且不依赖人工标签的解决方案。在面对实际应用中常见的数据不平衡问题时，自监督学习能够通过独立的预训练阶段先行提取高质量的通用特征，从而减小类别不平衡带来的影响。此外，这种方法还具备极强的兼容性，能够与现有各类算法无缝融合，为构建更加鲁棒和高效的智能系统提供了坚实的基础。
+
 \section{孪生网络与对比学习相关理论}
 对比学习是一种通过比较正负样本对来提取有意义特征的学习方法。其基本假设是在学习到的特征嵌入空间中，相似样本应聚集在一起，而不相似样本应远离彼此。通过将学习任务视为辨别任务，对比学习能够帮助模型识别数据中的潜在特征和相似性。对比学习可分为监督对比学习和自监督对比学习两类。
 
 监督对比学习是对比学习的一个子领域，依赖于标注数据来明确区分相似与不相似的样本。在监督对比学习中，模型通过训练数据对及其对应标签来学习哪些数据点是相似的，哪些是不相似的。其目标是学习一个表示空间，其中具备相似特征的实例聚集在一起，而特征不相似的实例则被推开。一种常用的优化目标是信息噪声对比估计(InfoNCE)损失函数，它通过最大化正样本对的相似性并最小化负样本对的相似性来优化模型。通过优化该目标，模型能够有效区分正负样本，进而提升下游任务的性能。
 
-自监督对比学习则不同于监督学习，它从未标注的数据中学习深层且有效的特征表示。自监督对比学习通过设计代理任务，从未标注数据中生成正负样本对。这些代理任务旨在促使模型捕获数据中有意义的特征和相似性。自监督对比学习中常见的策略之一是利用数据增强技术构造同一样本的多个不同视图，并将这些视图作为正样本对，而来自不同样本生成的实例则作为负样本对。通过训练模型识别并区分正负样本对，模型能够学习到更丰富的语义信息，并在下游任务中取得较好的推广效果。
+自监督对比学习则不同于监督学习，它从未标注的数据中学习深层且有效的特征表示。自监督对比学习通过设计代理任务，从未标注数据中生成正负样本对。这些代理任务旨在促使模型捕获数据中有意义的特征和相似性。自监督对比学习中常见的策略之一是利用数据增强技术构造同一样本的多个不同视图，并将这些视图作为正样本对，而来自不同样本生成的实例则作为负样本对。通过训练模型识别并区分正负样本对，模型能够学习到更丰富的语义信息，并在下游任务中取得较好的推广效果。下面以简单暹罗孪生网络为例，介绍孪生网络对比学习的过程和理论。
+
+简单暹罗孪生网络(SimSiam——Simple Siamese)\citing{chen2021exploring}架构(图~\ref{simsiam_arch})将信号$x$中的两个随机增强视图$x_1$和$x_2$作为输入。这两个视图由编码器(Encoder)网络$f$处理，该网络由骨干网络(例如ResNet\citing{he2016deep})和投影器(Projector)组成。编码器$f$在两个视图之间共享权重。预测器(Predictor)$h$转换一个视图的输出并将其与另一个视图进行匹配。将两个输出向量表示为$p_1 \triangleq h(f(x_1))$和$z_2 \triangleq f(x_2)$，最小化它们的负余弦相似度：
+\begin{equation}
+    \mathcal{D}(p_1, z_2) = -\frac{p_1}{\|p_1\|_2} \cdot \frac{z_2}{\|z_2\|_2}
+    \label{eq:distance}
+\end{equation}  
+其中，$\|\cdot\|_2$ 是 $\ell_2$范数。加入停止梯度(Stop-Grad)
+\begin{equation}
+    D(p_1, \text{stopgrad}(z_2))
+    \label{eq:sg_cos_loss}
+\end{equation}
+
+定义对称损失函数
+\begin{equation}
+    \mathcal{L} = D(p_1, \text{stopgrad}(z_2)) + D(p_2, \text{stopgrad}(z_1))
+\label{eq:cos_loss}
+\end{equation}
+该损失函数作用于单段信号，总损失值在计算所有信号的损失后取平均值。损失函数的最小值为-1。
+
+简单暹罗孪生网络的伪代码如表\ref{table:simsiam_code}所示。
+
+\begin{figure}[h]
+    \includegraphics[width=11cm]{simsiam_arch.pdf}
+    \caption{简单暹罗孪生网络}
+    \label{simsiam_arch}
+\end{figure}
+
+\begin{table}
+    \caption{{\CJKfamily{song}简单暹罗孪生网络的伪代码，用Pytorch描述}}
+    \begin{tabular}{@{}l@{}}
+    \toprule
+    \multicolumn{1}{@{}l@{}}{\textbf{{\CJKfamily{song}简单暹罗孪生网络Pytorch伪代码}}} \\
+    \midrule
+    \begin{lstlisting}[basicstyle=\fontspec{Times New Roman}, frame=none]
+#f: 骨干网络 + 投影器 MLP
+#h: 预测器 MLP
+for x in loader:  # 加载一个包含 n 个样本的小批量数据 x
+    x1, x2 = aug(x), aug(x)  # 随机数据增强
+    z1, z2 = f(x1), f(x2)  # 投影，形状为 n-by-d
+    p1, p2 = h(z1), h(z2)  # 预测，形状为 n-by-d
+    L = D(p1, z2)/2 + D(p2, z1)/2  # 损失函数
+
+    L.backward()  # 反向传播
+    update(f, h)  # SGD 更新
+
+def D(p, z):  # 负余弦相似度
+    z = z.detach()  # 停止梯度
+    p = normalize(p, dim=1)  # 对 p 进行 L2 归一化
+    z = normalize(z, dim=1)  # 对 z 进行 L2 归一化
+    return -(p * z).sum(dim=1).mean()  # 计算负余弦相似度
+    \end{lstlisting} \\
+    \bottomrule
+    \end{tabular}
+    \label{table:simsiam_code}
+\end{table}
+
+引入停止梯度的设计暗示了另一个潜在的优化问题正在被隐式解决。SimSiam 是一种类似于期望最大化(EM)算法的方法，隐式涉及两组变量并解决两个潜在的子问题。停止梯度操作的引入是为了引入额外的变量集。
+
+考虑以下形式的损失函数：
+\begin{equation}
+\label{eq:loss}
+\mathcal{L}(\theta,\eta)=\mathbb{E}_{x,\mathcal{T}}\left[\|\mathcal{F}_{\theta} (\mathcal{T}(x))-\eta_{x}\|^{2}_{2}\right].
+\end{equation}
+其中，$\mathcal{F}$ 是由 $\theta$ 参数化的网络，$\mathcal{T}$ 是数据增强，$x$ 是输入样本。期望 $\mathbb{E}[\cdot]$ 是对输入样本和数据增强的分布进行的。为了便于分析，这里使用均方误差 $\|\cdot\|^{2}_{2}$，如果向量是 $\ell_{2}$-归一化的，则等效于余弦相似度。暂时不考虑预测器，稍后再讨论。
+
+在式(\ref{eq:loss})中，引入了另一组变量，记为 $\eta$。$\eta$ 的大小与输入样本数量成正比。直观上，$\eta_{x}$ 是输入样本 $x$ 的表示，下标 ${}_{x}$ 表示使用输入样本索引访问 $\eta$ 的子向量。$\eta$ 不一定是网络的输出；它是一个优化问题的参数。
+
+通过这种形式化，考虑解决以下问题：
+\begin{equation}
+\label{eq:min_loss}
+\min_{\theta,\eta}\mathcal{L}(\theta,\eta).
+\end{equation}
+这里的问题是针对 $\theta$ 和 $\eta$ 的。这种形式化类似于 KMeans 聚类。变量 $\theta$ 类似于聚类中心：它是编码器的可学习参数。变量 $\eta_{x}$ 类似于样本 $x$ 的分配向量(在 KMeans 中是一个 one-hot 向量)，它是 $x$ 的表示。
+
+同样类似于 KMeans，式(\ref{eq:min_loss})中的问题可以通过交替算法解决，固定一组变量并解决另一组变量。形式上，可以在以下两个子问题之间交替：
+\begin{equation}
+\label{eq:theta_subproblem}
+\theta^{t} \leftarrow \arg\min_{\theta}\;\mathcal{L}(\theta,\eta^{t-1})
+\end{equation}
+\begin{equation}
+\label{eq:eta_subproblem}
+\eta^{t} \leftarrow \arg\min_{\eta}\;\mathcal{L}(\theta^{t},\eta)
+\end{equation}
+其中，$t$ 是交替的索引，“$\leftarrow$”表示赋值。
+
+可以使用随机梯度下降(SGD)来解决子问题(\ref{eq:theta_subproblem})。停止梯度操作是一个自然的结果，因为梯度不会反向传播到 $\eta^{t-1}$，而 $\eta^{t-1}$ 在这个子问题中是一个常数。
+
+子问题 (\ref{eq:eta_subproblem}) 可以独立地为每个 $\eta_{x}$ 求解。现在的问题是最小化$\mathbb{E}_{\mathcal{T}}\left[\|\mathcal{F}_{\theta^{t}}(\mathcal{T}(x))-\eta_{x} \|_{2}^{2}\right]$，其中期望是对数据增强 $\mathcal{T}$ 的分布进行的。由于使用均方误差，可以通过以下方式轻松求解：
+
+\begin{equation}
+\label{eq:eta_update}
+\eta_{x}^{t}\leftarrow\mathbb{E}_{\mathcal{T}}\Big{[}\mathcal{F}_{\theta^{t}}( \mathcal{T}(x))\Big{]}.
+\end{equation}
+这表明 $\eta_{x}$ 被赋值为 $x$ 在数据增强分布上的平均表示。
+
+SimSiam 可以通过在式(\ref{eq:theta_subproblem})和式(\ref{eq:eta_subproblem})之间进行一次交替来近似。首先，通过仅对数据增强采样一次(记为 $\mathcal{T}^{\prime}$)并忽略 $\mathbb{E}_{\mathcal{T}}[\cdot]$ 来近似式(\ref{eq:eta_update})：
+\begin{equation}
+\label{eq:eta_approx}
+\eta_{x}^{t}\leftarrow\mathcal{F}_{\theta^{t}}(\mathcal{T}^{\prime}(x)).
+\end{equation}
+将其代入子问题 (\ref{eq:theta_subproblem})，得到：
+
+\begin{equation}
+\label{eq:theta_update}
+\theta^{t+1}\leftarrow\arg\min_{\theta}\mathbb{E}_{x,\mathcal{T}}\Big{[}\big{\| }\mathcal{F}_{\theta}(\mathcal{T}(x))-\mathcal{F}_{\theta^{t}}(\mathcal{T}^{ \prime}(x))\big{\|}_{2}^{2}\Big{]}.
+\end{equation}
+现在 $\theta^{t}$ 在这个子问题中是一个常数，而 $\mathcal{T}^{\prime}$ 由于其随机性暗示了另一个视图。这种形式化展示了孪生网络架构。其次，如果通过一步 SGD 减少损失来实现式(\ref{eq:theta_update})，那么可以接近 SimSiam 算法：一个自然带有停止梯度操作的孪生网络。
+
+根据定义，预测器 $h$ 期望最小化：
+\begin{equation}
+\mathbb{E}_{x}\Big{[}\big{\|}h(z_{1})-z_{2}\big{\|}_{2}^{2}\Big{]} 
+\label{eq:target_of_h}
+\end{equation}
+其中，$z_i = \mathcal{F}(x_i)$，$x_i$表示输入$x$的第$i$个视图。$h$ 的最优解应满足：对于任何输入$x$， $h(z_{1})\!=\!\mathbb{E}_{z}[z_{2}]\!=\!\mathbb{E}_{\mathcal{T}}\big{[}\mathcal{F}( \mathcal{T}(x))\big{]}$ 。这个项类似于式(\ref{eq:eta_update})中的项。在式(\ref{eq:eta_approx})的近似中，期望 $\mathbb{E}_{\mathcal{T}}[\cdot]$ 被忽略了。$h$ 的使用可能填补了这一空白。在实践中，实际计算期望 $\mathbb{E}_{\mathcal{T}}$ 是不现实的。但神经网络(例如预测器 $h$)可能能够学习预测期望，而 $\mathcal{T}$ 的采样隐式分布在多个 epoch 中。
+
+根据上述讨论，$h$ 的最优解应满足 $h(z_1) = E_z[z_2]$。假设 $h$ 为线性映射，则有 $h(E[z_1]) = E[z_2]$。同时，根据对称损失函数式~(\ref{eq:cos_loss})，$h$ 的最优解应满足 $h(z_2) = E_z[z_1]$。将此关系代入，得到 $h(E[z_1]) = E[z_2]$，进一步推导得 $h(h(z_2)) = E[z_2]$。因此，可表示为：
+\begin{equation}
+    h(h(x)) = E[x]
+    \label{eq:derivation_of_h}
+\end{equation}
+
+这表明，在满足最优解的条件下，$h$ 很可能是输入变量 $x$ 到其期望值的平滑映射。假设 $h = E$，显然这是式~(\ref{eq:derivation_of_h}) 的一个特解。基于此，子问题~(\ref{eq:theta_subproblem}) 可以表述为：
+
+\begin{equation}
+    \arg\min_{\theta} \left[\| \mathcal{F}_{\theta}(x_1) - E(z_2) \|_2^2 + \| \mathcal{F}_{\theta}(x_2) - E(z_1) \|_2^2 \right]
+\end{equation}
+
+因此，SimSiam 的目标是最小化两个视图 \( x_1 \) 和 \( x_2 \) 输出特征期望值之间的距离，即使得 \( E(\mathcal{F}_\theta(x_1)) = E[z_2] \) 且 \( E(\mathcal{F}_\theta(x_2)) = E[z_1] \)，从而促使模型学习到在数据增强下保持不变的深层次语义。图~\ref{simsiam_derivation_of_features} 直观展示了模型训练前后特征分布的变化。在训练前，多个相似样本的两个视图的特征在特征空间中可能位于距离较远且形态各异的区域；而在训练后，两个视图的特征空间趋于重叠，且期望值之间的距离显著缩小。这表明，编码器成功学习到了对数据增强不敏感的深层次语义特征。此时，当 \( h \) 计算出 \( E[z_1] \) 时，即可得到式~(\ref{eq:target_of_h}) 的最优解，对于 \( z_2 \) 同理。
+
+然而，如果数据增强模块没有有效地带来多样化的特征空间分布(例如，训练前两个视图的特征空间已经趋于重叠)，那么当 \( h \) 学习到预测期望的能力时，编码器可能不再需要进一步学习那些与数据增强无关的深层语义特征。
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=8cm]{simsiam_derivation_of_features.pdf}
+    \caption{不同视图的模型特征输出分布的变化示意图}
+    \label{simsiam_derivation_of_features}
+\end{figure}
 
 \section{t-SNE降维原理}
-t-SNE(t-分布随机邻域嵌入)是一种广泛应用的非线性降维方法，常用于将高维数据映射到二维或三维空间，便于通过散点图直观地展示数据分布和聚类情况。它通常用于处理如图像、文本或高维特征数据的可视化任务。t-SNE 通过以下三个步骤来进行降维：
+t-SNE，全称为 t 分布随机邻域嵌入，是一种被广泛应用的非线性降维方法，常用于将高维数据映射到二维或三维空间，以便借助散点图直观展示数据的分布特征和聚类结构。该方法在图像识别、文本分析和高维特征可视化等任务中表现出色，能够有效揭示数据在低维空间中的内在结构。
 
-\begin{enumerate}[label={(\arabic*)}]
-    \item \textbf{计算高维相似度}：t-SNE 首先计算每对数据点之间的相似度。在高维空间中，对于任意两点 \(x_i\) 和 \(x_j\)，其相似度通过条件概率 \(p_{ij}\) 表示，计算公式为：
-    
-    \begin{equation}
-    p_{ij} = \frac{\exp\left( -\frac{\|x_i - x_j\|^2}{2\sigma_i^2} \right)}{\sum_{j \neq i} \exp\left( -\frac{\|x_i - x_j\|^2}{2\sigma_i^2} \right)}
-    \end{equation}
-    
-    其中，\(\|x_i - x_j\|\) 表示两点之间的欧氏距离，\(\sigma_i\) 是与点 \(x_i\) 相关的局部尺度参数，反映了该点的邻域大小。通过这种方式，t-SNE 保证了高维空间中相邻的数据点具有较高的相似度。
-    
-    \item \textbf{映射到低维空间}：接着，t-SNE 将数据映射到二维或三维的低维空间中。在低维空间中，t-SNE 使用 t-分布(Student's t-distribution)来计算数据点之间的相似度，公式为：    
-    \begin{equation}
-    q_{ij} = \frac{\left( 1 + \|y_i - y_j\|^2 \right)^{-1}}{\sum_{j \neq i} \left( 1 + \|y_i - y_j\|^2 \right)^{-1}}
-    \end{equation}    
+t-SNE 的降维过程可以概括为三个主要环节。首先，在高维空间中，t-SNE 计算任意两点之间的相似度。对于每对数据点，其相似度通过条件概率表示，其中任意两个数据点 \(x_i\) 和 \(x_j\) 的相似度 \(p_{ij}\) 定义如下：
 
-    其中，\(y_i\) 和 \(y_j\) 是低维空间中的数据点的向量，\(\|y_i - y_j\|\) 是它们之间的欧氏距离。t-分布的重尾特性使得它能够更加有效地处理聚类之间的距离，同时避免了在低维空间中过度拥挤的现象。
-    
-    \item \textbf{最小化KL散度}：t-SNE 的目标是最小化高维空间和低维空间中数据点相似度分布的差异。为此，t-SNE 通过最小化 Kullback-Leibler(KL)散度来优化模型的映射过程，KL 散度的计算公式为：    
-    \begin{equation}
-    \text{KL}(P || Q) = \sum_{i,j} p_{ij} \log \frac{p_{ij}}{q_{ij}}
-    \end{equation}
-    
-    通过迭代优化，t-SNE 会调整低维空间中的数据点位置，直到高维和低维空间的相似度分布尽可能接近。
-\end{enumerate}
+\begin{equation}
+p_{ij} = \frac{\exp\left( -\frac{\|x_i - x_j\|^2}{2\sigma_i^2} \right)}{\sum_{j \neq i} \exp\left( -\frac{\|x_i - x_j\|^2}{2\sigma_i^2} \right)}
+\end{equation}
+
+其中，\(\|x_i - x_j\|\) 表示两点之间的欧氏距离，\(\sigma_i\) 是与数据点 \(x_i\) 相关的局部尺度参数，用于控制其邻域范围。这种方式确保了模型在高维空间中对每个点的局部结构进行精确建模，从而更好地反映数据的分布特性。
+
+接下来，t-SNE 将数据映射到低维空间，并在该空间中重新计算数据点之间的相似度。与高维空间中采用的高斯分布不同，t-SNE 在低维空间中采用 t 分布来定义点之间的相似度，计算公式如下：
+
+\begin{equation}
+q_{ij} = \frac{\left( 1 + \|y_i - y_j\|^2 \right)^{-1}}{\sum_{j \neq i} \left( 1 + \|y_i - y_j\|^2 \right)^{-1}}
+\end{equation}
+
+其中，\(y_i\) 和 \(y_j\) 分别表示低维空间中的数据点向量，\(\|y_i - y_j\|\) 是它们之间的欧氏距离。t 分布的重尾特性可以有效缓解低维空间中的“拥挤问题”，使得不同簇之间的距离得以清晰拉开，从而增强聚类结构的可视化效果。
+
+为了尽可能保持高维空间中的数据相似度关系，t-SNE 通过最小化高维与低维之间的相似度分布差异来优化嵌入过程。这一优化目标通过 Kullback-Leibler 散度进行度量，其定义如下：
+
+\begin{equation}
+\text{KL}(P || Q) = \sum_{i,j} p_{ij} \log \frac{p_{ij}}{q_{ij}}
+\end{equation}
+
+其中 \(P\) 表示高维空间的相似度分布，\(Q\) 表示低维空间的相似度分布。通过反复迭代优化，t-SNE 会不断调整低维空间中各数据点的位置，使得两种分布之间的差异最小化，从而实现高质量的降维可视化。
+
+综上所述，t-SNE 以其在保持局部结构、突出聚类特征以及适应复杂分布等方面的优势，已成为高维数据可视化领域中不可或缺的重要工具。
+
 t-SNE降维伪代码见表\ref{table:tsne_code}。
 \begin{table}[h]
-    \caption{t-SNE算法伪代码}
-    \begin{tabular}{@{}l@{}} % 使用 @{} 去掉默认的左右边距，l 表示左对齐
+    \caption{{\CJKfamily{song}t-SNE算法伪代码}}
+    {\CJKfamily{song} % 只让这个表格内容中文是宋体
+    \begin{tabular}{@{}l@{}} % 去左右边距，左对齐
     \toprule
-    \multicolumn{1}{@{}l@{}}{\textbf{t-SNE算法伪代码}} \\ % 左对齐文本
+    \multicolumn{1}{@{}l@{}}{\textbf{t-SNE算法伪代码}} \\
     \midrule
-    \begin{lstlisting}[basicstyle=\ttfamily,frame=none]
+    \begin{lstlisting}[basicstyle=\fontspec{Times New Roman}, frame=none]
 # 输入: 高维数据 X = {x1, x2, ..., xn}
 # 输出: 低维数据 Y = {y1, y2, ..., yn}
 # Step 1: 计算高维空间中数据点之间的相似度 p_ij
@@ -233,34 +439,26 @@ return Y  # 返回降维后的低维数据 Y
     \end{lstlisting} \\
     \bottomrule
     \end{tabular}
+    }
     \label{table:tsne_code}
 \end{table}
 \FloatBarrier  % 阻止后续浮动体越过这条线
+
+
 \section{K-Means聚类原理}
 K-Means 是一种经典的无监督学习算法，其核心思想是通过最小化样本点与各自簇中心之间的距离，将数据划分为 K 个簇。该算法在图像分割、客户细分、文档聚类以及特征提取等多个领域被广泛应用。算法步骤如下：
-\begin{enumerate}[label={(\arabic*)}]
-    \item \textbf{初始化}：从数据集中随机选取 \(K\) 个样本作为初始簇中心。
-    \item \textbf{簇分配}：依据最小欧氏距离准则，将每个样本分配至其最近的簇中心所属的簇，欧氏距离计算为：
-    \[
-    \text{Distance}(x_i, c_j) = \| x_i - c_j \|
-    \]
-    其中，\(x_i\) 为数据点，\(c_j\) 为簇的质心。
-    \item \textbf{更新质心}：重新计算每个簇的质心，即簇内所有数据点的均值：
-    \[
-    c_j = \frac{1}{|S_j|} \sum_{x_i \in S_j} x_i
-    \]
-    其中，\(S_j\) 为第 \(j\) 个簇的数据点集合，\(|S_j|\) 为该簇的数据点数。
-    \item \textbf{重复迭代}：重复簇分配与簇质心更新步骤，直至簇质心收敛或达到预设的最大迭代次数。 
-    \item \textbf{使用匈牙利算法找到最佳匹配}：在完成迭代后，使用匈牙利算法来优化簇标签的匹配，以确保最合适的标签分配。匈牙利算法可以通过最小化簇间的匹配成本来实现最佳匹配。
-\end{enumerate}
-KMeans算法的伪代码见表\ref{table:kmeans_code}。
+K-Means 是一种经典的无监督学习算法，其核心思想是通过最小化样本点与各自簇中心之间的距离，将数据划分为 \(K\) 个簇。该方法在图像分割、客户细分、文档聚类、特征提取等多个应用场景中被广泛采用。K-Means 的整体流程包括初始化、簇分配、质心更新、重复迭代以及标签匹配等步骤。
+
+K-Means 算法的伪代码如表~\ref{table:kmeans_code} 所示，清晰展示了其基本流程与实现逻辑。
+
 \begin{table}[h]
-    \caption{KMeans算法伪代码}
-    \begin{tabular}{@{}l@{}} % 使用 @{} 去掉默认的左右边距，l 表示左对齐
+    \caption{{\CJKfamily{song}KMeans算法伪代码}}
+    {\CJKfamily{song}
+    \begin{tabular}{@{}l@{}}
     \toprule
-    \multicolumn{1}{@{}l@{}}{\textbf{KMeans算法伪代码}} \\ % 左对齐文本
+    \multicolumn{1}{@{}l@{}}{\textbf{KMeans算法伪代码}} \\
     \midrule
-    \begin{lstlisting}[basicstyle=\ttfamily,frame=none]
+    \begin{lstlisting}[basicstyle=\fontspec{Times New Roman}, frame=none]
 # 输入: 数据集 X = {x1, x2, ..., xn}, 簇数 K, 最大迭代次数 T
 # 输出: 簇标签 {y1, y2, ..., yn}
 
@@ -294,57 +492,71 @@ return optimal_labels  # 返回优化后的簇标签 {y1, y2, ..., yn}
     \end{lstlisting} \\
     \bottomrule
     \end{tabular}
+    }
     \label{table:kmeans_code}
 \end{table}
-\FloatBarrier  % 阻止后续浮动体越过这条线
-\section{协方差矩阵适应进化策略原理}
-协方差矩阵适应进化策略(CMA-ES)是一种进化算法，专用于解决连续优化问题。它是一种基于种群的优化方法，通过不断调整种群的协方差矩阵来引导搜索过程。CMA-ES 在解决非线性、非凸、高维优化问题时表现出色，广泛应用于机器学习、工程优化和科学研究中。CMA-ES 的更新规则如下：
 
-\begin{enumerate}[label={(\arabic*)}]
- \item 采样新解：
+在初始阶段，算法从数据集中随机选取 \(K\) 个样本作为初始簇中心。随后，依据最小欧氏距离准则，将每个数据点 \(x_i\) 分配给距离其最近的簇中心 \(c_j\)。两者之间的欧氏距离计算方式如下：
+
+\begin{equation}
+\text{Distance}(x_i, c_j) = \| x_i - c_j \|
+\end{equation}
+
+完成分配后，算法会重新计算每个簇的质心，即簇内所有数据点的均值，更新公式如下：
+
+\begin{equation}
+c_j = \frac{1}{|S_j|} \sum_{x_i \in S_j} x_i
+\end{equation}
+
+其中，\(S_j\) 表示第 \(j\) 个簇中的样本集合，\(|S_j|\) 是该簇中样本的数量。簇分配与质心更新这两个步骤不断交替进行，直至簇质心收敛，或达到设定的最大迭代次数为止。
+
+在聚类迭代完成后，为了优化簇标签与真实标签之间的对应关系，可引入匈牙利算法来实现最优匹配。该算法能够最小化聚类标签与真实标签之间的总匹配成本，从而提高聚类评估的一致性与准确性。
+\FloatBarrier  % 阻止后续浮动体越过这条线
+
+
+\section{协方差矩阵适应进化策略原理}
+协方差矩阵适应进化策略（Covariance Matrix Adaptation Evolution Strategy，CMA-ES）是一种用于连续域全局优化的进化算法。它采用基于种群的搜索机制，通过不断更新搜索分布的均值、步长和协方差矩阵来引导优化过程，尤其擅长处理非线性、非凸、高维的复杂问题。CMA-ES 广泛应用于机器学习中的超参数优化、工程设计以及复杂系统建模等任务中，因其鲁棒性和自适应能力而受到广泛关注。
+
+在每一代中，CMA-ES 首先通过采样生成候选解。候选解的生成方式如下：
+
 \begin{equation}
 \mathbf{x}_k^{(g+1)} = \mathbf{m}^{(g)} + \sigma^{(g)} \cdot \mathcal{N}(0, \mathbf{C}^{(g)})
 \label{eq:sample}
 \end{equation}
-其中：
-    \(\mathbf{x}_k^{(g+1)}\) 是第 \(g+1\) 代中的第 \(k\) 个候选解，
-    \(\mathbf{m}^{(g)}\) 是第 \(g\) 代的均值向量，
-    \(\sigma^{(g)}\) 是第 \(g\) 代的步长，
-    \(\mathbf{C}^{(g)}\) 是第 \(g\) 代的协方差矩阵，
-    \(\mathcal{N}(0, \mathbf{C}^{(g)})\) 是从多元正态分布中采样的随机向量。
 
- \item 更新均值：
+其中，\(\mathbf{x}_k^{(g+1)}\) 表示第 \(g+1\) 代中的第 \(k\) 个候选解，\(\mathbf{m}^{(g)}\) 是当前种群的均值向量，\(\sigma^{(g)}\) 为当前步长控制参数，\(\mathbf{C}^{(g)}\) 是协方差矩阵，\(\mathcal{N}(0, \mathbf{C}^{(g)})\) 表示从零均值、协方差为 \(\mathbf{C}^{(g)}\) 的多元正态分布中采样的扰动向量。
+
+随后，根据适应度函数对候选解进行排序，选取前 \(\mu\) 个最优个体来更新新的均值。更新公式如下：
+
 \begin{equation}
 \mathbf{m}^{(g+1)} = \sum_{i=1}^{\mu} w_i \mathbf{x}_{i:\lambda}^{(g+1)}
 \label{eq:mean_update}
 \end{equation}
-其中：
-    \(\mu\) 是选择的父代数量，
-    \(w_i\) 是权重系数，
-    \(\mathbf{x}_{i:\lambda}^{(g+1)}\) 是第 \(g+1\) 代中适应度排名前 \(\mu\) 的候选解。
 
- \item 更新协方差矩阵：
+其中，\(w_i\) 是各候选解的权重系数，\(\mathbf{x}_{i:\lambda}^{(g+1)}\) 表示按照适应度排序后的第 \(i\) 个候选解。
+
+协方差矩阵的更新机制考虑了两个因素：一是路径累计项用于捕捉连续迭代方向上的长期信息，二是基于当前最优样本的分布信息修正协方差结构。更新规则如下所示：
+
 \begin{equation}
 \mathbf{C}^{(g+1)} = (1 - c_1 - c_\mu) \mathbf{C}^{(g)} + c_1 \mathbf{p}_c^{(g+1)} (\mathbf{p}_c^{(g+1)})^\top + c_\mu \sum_{i=1}^{\mu} w_i \mathbf{y}_{i:\lambda}^{(g+1)} (\mathbf{y}_{i:\lambda}^{(g+1)})^\top
 \label{eq:covariance_update}
 \end{equation}
-其中：
-    \(c_1\) 和 \(c_\mu\) 是学习率，
-    \(\mathbf{p}_c^{(g+1)}\) 是进化路径，
-    \(\mathbf{y}_{i:\lambda}^{(g+1)} = (\mathbf{x}_{i:\lambda}^{(g+1)} - \mathbf{m}^{(g)}) / \sigma^{(g)}\)。
 
- \item 更新步长：
+其中，\(\mathbf{p}_c^{(g+1)}\) 是协方差路径，\(\mathbf{y}_{i:\lambda}^{(g+1)} = (\mathbf{x}_{i:\lambda}^{(g+1)} - \mathbf{m}^{(g)}) / \sigma^{(g)}\)，而 \(c_1\) 与 \(c_\mu\) 是控制学习率的常数项。
+
+最后，为了进一步控制搜索范围的尺度，CMA-ES 对步长 \(\sigma\) 进行自适应调整，其更新规则如下：
+
 \begin{equation}
 \sigma^{(g+1)} = \sigma^{(g)} \exp\left(\frac{c_\sigma}{d_\sigma} \left(\frac{\|\mathbf{p}_\sigma^{(g+1)}\|}{\mathbb{E}[\|\mathcal{N}(0, \mathbf{I})\|]} - 1\right)\right)
 \label{eq:stepsize_update}
 \end{equation}
-其中：
-    \(c_\sigma\) 是步长学习率，
-    \(d_\sigma\) 是阻尼系数，
-    \(\mathbf{p}_\sigma^{(g+1)}\) 是步长进化路径，
-    \(\mathbb{E}[\|\mathcal{N}(0, \mathbf{I})\|]\) 是标准正态分布向量的期望范数。
-\end{enumerate}
+
+其中，\(\mathbf{p}_\sigma^{(g+1)}\) 是步长进化路径，\(c_\sigma\) 和 \(d_\sigma\) 分别表示步长的学习率和阻尼系数，\(\mathbb{E}[\|\mathcal{N}(0, \mathbf{I})\|]\) 是单位高斯分布下向量范数的期望值。
+
+综上所述，CMA-ES 通过协方差矩阵与步长的动态调整，使得算法能够在复杂优化空间中自适应地寻找搜索方向与尺度，兼顾探索与收敛，是解决连续优化问题的强有力工具之一。
+
 \FloatBarrier  % 阻止后续浮动体越过这条线
+
 
 \section{数据集介绍}
 \subsection{凯斯西储大学 CWRU数据集}
@@ -438,6 +650,7 @@ return optimal_labels  # 返回优化后的簇标签 {y1, y2, ..., yn}
     \label{cwru_samples}
 \end{figure}
 \FloatBarrier  % 阻止后续浮动体越过这条线
+
 \subsection{帕德伯恩大学PU数据集}
 PU轴承试验台由电机、测矩轴、滚动轴承试验模块、飞轮和负载电机组成，所有测试轴承均为6203型号滚动轴承。故障类别以不同损伤部位、损伤程度、损伤方法区分，加上正常类，共13类，具体故障类型如表\ref{tab:pu_fault_types}所示。
 \begin{table}[H]
@@ -466,14 +679,12 @@ PU轴承试验台由电机、测矩轴、滚动轴承试验模块、飞轮和负
     \label{tab:pu_fault_types}
 \end{table}
 
-
-\FloatBarrier  % 阻止后续浮动体越过这条线
 \subsection{长尾数据集构造}
-模拟构建长尾分布数据集流程如图\ref{pareto}所示。设定不平衡因子 \(\beta = x_{\text{max}} / x_{\text{min}}\) 为数据集中样本数量最多的类与样本数量最少的类的数量之比。帕累托分布的概率密度函数为 \(p(x) = \frac{\alpha x_{\text{min}}^{\alpha}}{x^{\alpha+1}}\)，令$x_{\text{min}} = 1$，则\(p(x) = \frac{\alpha}{x^{\alpha+1}}\)。以不平衡因子构建服从帕累托分布的长尾分布数据集，不同不平衡因子的帕累托分布概率密度函数如图\ref{paerto_fig_beta}所示，可以看到当最大类与最小类样本数的比值 \(\beta\) 增大时，帕累托分布的形状参数 \(\alpha\) 也随之增大。这表明分布的头部类别占比提高，而尾部类别占比显著降低，长尾效应越发显著。下面将介绍形状参数 \(\alpha\) 的求解方法，以及各类别样本占比的计算步骤。
+模拟构建长尾分布数据集流程如图~\ref{pareto}所示。设定不平衡因子 \(\beta = x_{\text{max}} / x_{\text{min}}\) 为数据集中样本数量最多的类与样本数量最少的类的数量之比。帕累托分布的概率密度函数为 \(p(x) = \frac{\alpha x_{\text{min}}^{\alpha}}{x^{\alpha+1}}\)，令$x_{\text{min}} = 1$，则\(p(x) = \frac{\alpha}{x^{\alpha+1}}\)。以不平衡因子构建服从帕累托分布的长尾分布数据集，不同不平衡因子的帕累托分布概率密度函数如图~\ref{paerto_fig_beta}所示，可以看到当最大类与最小类样本数的比值 \(\beta\) 增大时，帕累托分布的形状参数 \(\alpha\) 也随之增大。这表明分布的头部类别占比提高，而尾部类别占比显著降低，长尾效应越发显著。下面将介绍形状参数 \(\alpha\) 的求解方法，以及各类别样本占比的计算步骤。
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=12cm]{pareto.pdf}
+    \includegraphics[width=11cm]{pareto.pdf}
     \caption{基于帕累托分布构造长尾分布的轴承数据集流程图}
     \label{pareto}
 \end{figure}
@@ -527,247 +738,97 @@ P_{\text{norm}}(n \leq x < n+1) = \frac{P(n \leq x < n+1)}{\sum_{k=1}^N P(k \leq
 \sum_{n=1}^N P_{\text{norm}}(n \leq x < n+1) = 1
 \end{equation}
 
-\chapter{基于暹罗孪生网络对比学习的自监督学习故障诊断方法}
-本章提出了一种基于暹罗孪生网络对比学习的自监督学习故障诊断框架，设计了一种新颖的数据增强策略搜索算法，并对数据增强模块在该框架中的必要性和设计方向进行了详细的理论分析和实验。
+\section{本章小结}
+本章系统地介绍了自监督学习的相关理论基础，重点分析了孪生网络与对比学习在特征提取中的关键作用，明确了其在无监督条件下实现语义聚合的优势，同时在理论上分析了孪生网络训练的过程。同时，本章还阐述了用于可视化与聚类分析的 t-SNE 降维算法与 K-Means 聚类原理，为后续特征可视化和聚类评价提供了理论支撑。此外，还对协方差矩阵适应进化策略(CMA-ES)的基本原理进行了简要说明，作为后续优化方法的理论依据。最后，本章详细介绍了实验中使用的轴承故障数据集，包括凯斯西储大学 CWRU 数据集、帕德伯恩大学 PU 数据集，并提出了一种基于帕累托分布的长尾数据集构造方法，为后续验证模型在不平衡样本条件下的性能奠定了数据基础。
 
-设计孪生网络的一个关键挑战是防止网络输出出现“坍塌”现象，即输出最终趋向于一个常数的平凡解。为了解决这一问题，本章首先介绍了简单暹罗孪生网络框架，并结合实验与理论分析，探讨了各个模块在防止网络“坍塌”方面的作用。通过一系列实验证明了框架的有效性和鲁棒性，特别是在实际应用中如何通过合理设计避免模型的退化问题。
-\FloatBarrier  % 阻止后续浮动体越过这条线
+\chapter{基于自适应数据增强优化的对比学习故障诊断网络框架}
+在智能制造与设备健康管理领域，故障诊断技术正逐步从传统的有监督学习方法向自监督学习方向发展。近年来，基于对比学习的孪生网络因其在无标签数据上具有一定的特征提取能力，逐渐受到研究关注。然而，在实际应用中，孪生网络容易出现“特征坍塌”(representation collapse)现象，即网络输出趋于某种平凡解，导致提取的特征缺乏判别性，影响模型性能和泛化能力。
+
+为缓解该问题，已有研究通过引入投影头、构造负样本对等方式来增强模型的稳定性。但在工业场景下，故障数据往往存在分布不均衡、标签不足等问题，依赖结构调整手段仍难以充分挖掘样本的判别信息。因此，合理的数据增强策略有望在提升特征表达能力方面发挥更为直接的作用，成为改善对比学习效果的关键因素之一。
+
+基于此，本章在基于孪生网络对比学习的故障诊断网络基础上，设计并引入了一种自适应数据增强策略框架，用于根据数据特征的质量评估自动调整增强模块的参数。该策略旨在提升网络对关键故障特征的感知能力，并在一定程度上缓解特征坍塌问题。同时，本章通过实验对增强模块的作用进行了分析和验证，评估其在诊断准确性和鲁棒性方面的影响。
+
 \section{模型整体架构及其模块设计}
-\subsection{简单暹罗孪生故障诊断网络整体结构}
-提出了一种用于故障诊断的简单暹罗孪生网络(Simple Siamese, SimSiam)，其结构如图 \ref{simsiam_net} 所示。模型的训练过程包括三个阶段。首先是对比学习阶段，在该阶段，所有未标记的振动样本经过归一化预处理，并采用协方差矩阵适应进化策略(CMA-ES)搜索最优的数据增强策略，对输入样本进行增强，生成两个不同视图作为正样本对。然后，将正样本对输入模型进行SimSiam网络对比学习，以优化编码器的特征表示能力。接下来的微调阶段，提取第一阶段训练好的编码器，并在其最后一层附加一个线性分类层，随后使用标记样本对模型进行有监督训练。此外，线性分类层还可以被其他分类器替换，如KNN和SVM。最后，在故障诊断阶段，将编码器和线性分类器层组合成一个完整的故障分类器，应用于实际的故障诊断任务，实现高效的故障识别。以下将对各个模块的具体实现细节进行详细介绍。
+\subsection{基于自适应数据增强优化的对比学习故障诊断网络整体结构}
+
+本章提出了一种基于自适应数据增强优化的对比学习故障诊断网络框架，其结构如图~\ref{simsiam_net}所示。模型训练分为三个阶段。首先，在自适应数据增强驱动的自监督对比学习阶段，原始无标签样本通过数据增强模块生成两个不同视图作为正样本对，输入孪生网络以优化编码器的特征表示能力。随后，编码器提取的特征向量经过特征质量评估模块，通常采用轮廓系数或有标签样本上的分类准确率作为质量指标 \(Q\)。该指标反馈至数据增强控制器，用以动态调整增强操作的执行概率 \(p\) 和增强强度 \(s\)，实现增强策略的自适应优化。数据增强控制器的实现方式多样，包括基于长短时记忆网络(LSTM)的强化学习方法\citing{cubuk2018autoaugment}、数据分布密度匹配的贝叶斯优化方法\citing{lim2019fast}，以及遗传算法。
+
+第二阶段为微调阶段，将第一阶段训练完成的编码器与线性分类层结合，在带标签样本上进行有监督训练。此外，线性分类层也可替换为其他分类器，如KNN或SVM。最后，在故障诊断阶段，将训练好的编码器与分类器组成完整的故障分类模型，应用于实际故障识别任务，实现高效准确的诊断。
+
+以下内容将详细介绍各模块的具体实现细节。
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=16cm]{simsiam_net.pdf}
-    \caption{简单暹罗孪生故障诊断网络}
+    \includegraphics[width=15cm]{simsiam_net_aa.pdf}
+    \caption{基于自适应数据增强优化的孪生故障诊断网络}
     \label{simsiam_net}
 \end{figure}
 \FloatBarrier  % 阻止后续浮动体越过这条线
-\subsection{简单暹罗孪生网络对比学习}
-简单暹罗孪生网络(SimSiam——Simple Siamese)\citing{chen2021exploring}架构(图\ref{simsiam_arch})将信号$x$中的两个随机增强视图$x_1$和$x_2$作为输入。这两个视图由编码器(Encoder)网络$f$处理，该网络由骨干网络(例如ResNet\citing{he2016deep})和投影器MLP(Projector)组成。编码器$f$在两个视图之间共享权重。预测器MLP(Predictor)$h$转换一个视图的输出并将其与另一个视图进行匹配。将两个输出向量表示为$p_1 \triangleq h(f(x_1))$和$z_2 \triangleq f(x_2)$，最小化它们的负余弦相似度：
-\begin{equation}
-    \mathcal{D}(p_1, z_2) = -\frac{p_1}{\|p_1\|_2} \cdot \frac{z_2}{\|z_2\|_2}
-    \label{eq:distance}
-\end{equation}  
-其中，$\|\cdot\|_2$ 是 $\ell_2$范数。定义对称损失函数
-\begin{equation}
-    \mathcal{L} = \frac{1}{2} \mathcal{D}(p_{1}, z_{2}) + \frac{1}{2} \mathcal{D}(p_{2}, z_{1})
-\label{eq:cos_loss}
-\end{equation}
-该损失函数作用于单段信号，总损失值在计算所有信号的损失后取平均值。损失函数的最小值为-1。
+\subsection{基于自适应数据增强的自监督对比学习}
 
-方法中一个重要的组件是梯度停止(stop-grad)操作(图\ref{simsiam_arch})。通过修改公式(\ref{eq:distance}) 来实现它：
-\begin{equation}
-    D(p_1, \text{stopgrad}(z_2))
-\label{eq:stopgrad}
-\end{equation}
-这意味着在这一项中，\( z_2 \) 被视为常数。类似地，公式(\ref{eq:cos_loss}) 的实现形式为：
-\begin{equation}
-\mathcal{L} = \frac{1}{2} D(p_1, \text{stopgrad}(z_2)) + \frac{1}{2} D(p_2, \text{stopgrad}(z_1))
-\label{eq:cos_loss_stopgrad}
-\end{equation}
-第一项中 \( x_2 \) 的编码器不会从 \( z_2 \) 接收梯度，但在第二项中会从 \( p_2 \) 接收梯度(反之亦然，对于 \( x_1 \) 也是如此)。即在这一项中，\( z_2 \) 被视为常数。
+在对比表示学习算法中，数据增强起着至关重要的作用。编码器能否成功从振动信号中提取可区分的故障特征，一定程度上取决于为同一样本生成不同视图的质量。当前，尽管图像领域的对比学习广泛采用多种增强方法，针对序列数据的增强手段相对较少。用于生成正样本对的数据增强方法需满足语义一致性，即加入的噪声或变换不能改变样本的故障类别等核心语义特征；同时增强方法也应具备足够多样性，以在特征空间中引入有效变化，促进编码器学习判别性深层语义表示。传统对比学习多依赖于手工设计的固定增强策略，往往基于领域经验，缺乏针对具体数据特点的适应性。一方面，固定策略难以保证不同故障模式下的语义一致性；另一方面，手工设定的增强强度可能导致样本差异不足，限制判别特征学习。为此，本文引入可学习的控制器，实现对增强操作执行概率 \(p\) 和强度 \(s\) 的端到端优化，达到增强策略自适应学习。
 
-简单暹罗孪生网络的伪代码如表\ref{table:simsiam_code}所示。
+如图~\ref{aa_module}所示，本文提出了一种基于自适应数据增强(AutoAugment)的自监督对比学习框架。原始振动信号 \(x\) 经数据增强模块生成两个视图 \(x_1\) 和 \(x_2\)，作为正样本对输入孪生网络进行对比学习。孪生网络分别提取两视图的特征表示 \(z_1\) 和 \(z_2\)，并传递至特征质量评估模块，评估当前增强策略下的特征提取效果。评估结果作为反馈输入数据增强控制器，动态调整增强操作的执行概率 \(p\) 和增强强度 \(s\)，优化数据增强策略。该过程持续迭代，实现增强策略与特征表示学习的协同进化。
 
 \begin{figure}[h]
-    \includegraphics[width=12cm]{simsiam_arch.pdf}
-    \caption{简单暹罗孪生网络}
-    \label{simsiam_arch}
+    \centering
+    \includegraphics[width=10cm]{aa_module.pdf}
+    \caption{自适应数据增强的对比学习框架图}
+    \label{aa_module}
 \end{figure}
 
-\begin{table}
-    \caption{简单暹罗孪生网络的伪代码，用Pytorch描述}
-    \begin{tabular}{@{}l@{}} % 使用 @{} 去掉默认的左右边距，l 表示左对齐
+数据增强模块由多个子策略组成，每个子策略由增强方法、应用概率 \(p \in [0,1]\) 和增强强度 \(s \in [0,10]\) 共同定义。本文采用了8种增强方法，详见表~\ref{tab:augmentation_descriptions}。图~\ref{data_augmentation}展示了不同增强方法对信号时域表现的影响。
+
+特征质量评估模块衡量孪生网络编码器提取特征的有效性和判别能力，常用指标包括特征聚散度(同类特征聚合与异类特征分散程度)、KNN准确率、归一化互信息、调整兰德指数及轮廓系数等聚类指标。本文主要采用线性评估精度作为评价标准，即冻结编码器参数，训练线性分类器，并以其下游任务准确率衡量特征可分性。
+
+数据增强控制器作为框架核心模块，依据特征质量评估反馈动态调整各增强策略的执行概率 \(p\) 和强度 \(s\)。训练过程中，控制器持续接收当前增强策略下特征质量指标，利用优化算法更新增强参数，实现增强策略自适应进化。此闭环机制有效引导数据增强向促进特征学习方向调整，提升无监督对比学习框架的表征能力及下游任务性能。控制器实现方式多样，常见包括基于长短时记忆网络的强化学习方法，将增强策略调整视作序列决策过程，通过强化学习最大化特征质量收益；基于数据分布密度匹配的贝叶斯优化方法，利用高斯过程建立增强参数与特征质量映射，通过采集函数引导全局搜索；以及遗传算法，通过编码增强参数为染色体，依靠选择、交叉与变异操作迭代优化种群，依据特征质量评价个体适应度，实现全局优化。本文采用遗传算法中的协方差矩阵自适应进化策略(CMA-ES)作为控制器实现，充分发挥其在非连续、非光滑优化问题中的优势，实现了数据增强参数的自适应学习与优化。
+
+\begin{table}[h]
+    \caption{对比学习中使用的数据增强及强度映射}
+    \centering
+    \begin{tabular}{clp{5cm}l} % 调整列宽，最后一列为自动宽度
     \toprule
-    \multicolumn{1}{@{}l@{}}{\textbf{简单暹罗孪生网络Pytorch伪代码}} \\ % 左对齐文本
+    编号 & 增强方式 & 描述 & 强度映射 \\
     \midrule
-    \begin{lstlisting}[basicstyle=\ttfamily,frame=none]
-#f: 骨干网络 + 投影器 MLP
-#h: 预测器 MLP
-for x in loader:  # 加载一个包含 n 个样本的小批量数据 x
-    x1, x2 = aug(x), aug(x)  # 随机数据增强
-    z1, z2 = f(x1), f(x2)  # 投影，形状为 n-by-d
-    p1, p2 = h(z1), h(z2)  # 预测，形状为 n-by-d
-    L = D(p1, z2)/2 + D(p2, z1)/2  # 损失函数
-
-    L.backward()  # 反向传播
-    update(f, h)  # SGD 更新
-
-def D(p, z):  # 负余弦相似度
-    z = z.detach()  # 停止梯度
-    p = normalize(p, dim=1)  # 对 p 进行 L2 归一化
-    z = normalize(z, dim=1)  # 对 z 进行 L2 归一化
-    return -(p * z).sum(dim=1).mean()  # 计算负余弦相似度
-    \end{lstlisting} \\
+    DA0 & 掩码 & 遮盖部分信号，增强鲁棒性 & 遮盖长度 $[1,5] \mapsto [0,10]$ \\
+    DA1 & 高斯噪声 & 添加噪声，模拟干扰环境 & 信噪比 $[2,6] \mapsto [0,10]$ \\
+    DA2 & 相位扰动 & 改变频域相位，保持幅值 & 相位幅度 $[0.1,0.5] \mapsto [0,10]$ \\
+    DA3 & 块打乱 & 分块重排，提升多样性 & 块数 $[10,100] \mapsto [0,10]$ \\
+    DA4 & 缩放 & 缩放幅度，模拟强弱变化 & 缩放比 $[0.05,0.6] \mapsto [0,10]$ \\
+    DA5 & 绝对值 & 取正处理，统一极性 & -- \\
+    DA6 & 竖直翻转 & 上下翻转，增强鲁棒性 & -- \\
+    DA7 & 水平翻转 & 时间翻转，增加对称性 & -- \\
     \bottomrule
     \end{tabular}
-    \label{table:simsiam_code}
+    \label{tab:augmentation_descriptions}
 \end{table}
-引入停止梯度的设计暗示了另一个潜在的优化问题正在被隐式解决。SimSiam 是一种类似于期望最大化(EM)算法的方法，隐式涉及两组变量并解决两个潜在的子问题。停止梯度操作的引入是为了引入额外的变量集。
 
-考虑以下形式的损失函数：
-\begin{equation}
-\label{eq:loss}
-\mathcal{L}(\theta,\eta)=\mathbb{E}_{x,\mathcal{T}}\left[\|\mathcal{F}_{\theta} (\mathcal{T}(x))-\eta_{x}\|^{2}_{2}\right].
-\end{equation}
-其中，$\mathcal{F}$ 是由 $\theta$ 参数化的网络，$\mathcal{T}$ 是数据增强，$x$ 是输入样本。期望 $\mathbb{E}[\cdot]$ 是对输入样本和数据增强的分布进行的。为了便于分析，这里使用均方误差 $\|\cdot\|^{2}_{2}$，如果向量是 $\ell_{2}$-归一化的，则等效于余弦相似度。暂时不考虑预测器，稍后再讨论。
-
-在式(\ref{eq:loss})中，引入了另一组变量，记为 $\eta$。$\eta$ 的大小与输入样本数量成正比。直观上，$\eta_{x}$ 是输入样本 $x$ 的表示，下标 ${}_{x}$ 表示使用输入样本索引访问 $\eta$ 的子向量。$\eta$ 不一定是网络的输出；它是一个优化问题的参数。
-
-通过这种形式化，考虑解决以下问题：
-\begin{equation}
-\label{eq:min_loss}
-\min_{\theta,\eta}\mathcal{L}(\theta,\eta).
-\end{equation}
-这里的问题是针对 $\theta$ 和 $\eta$ 的。这种形式化类似于 KMeans 聚类。变量 $\theta$ 类似于聚类中心：它是编码器的可学习参数。变量 $\eta_{x}$ 类似于样本 $x$ 的分配向量(在 KMeans 中是一个 one-hot 向量)，它是 $x$ 的表示。
-
-同样类似于 KMeans，式(\ref{eq:min_loss})中的问题可以通过交替算法解决，固定一组变量并解决另一组变量。形式上，可以在以下两个子问题之间交替：
-\begin{equation}
-\label{eq:theta_subproblem}
-\theta^{t} \leftarrow \arg\min_{\theta}\;\mathcal{L}(\theta,\eta^{t-1})
-\end{equation}
-\begin{equation}
-\label{eq:eta_subproblem}
-\eta^{t} \leftarrow \arg\min_{\eta}\;\mathcal{L}(\theta^{t},\eta)
-\end{equation}
-其中，$t$ 是交替的索引，“$\leftarrow$”表示赋值。
-
-可以使用随机梯度下降(SGD)来解决子问题(\ref{eq:theta_subproblem})。停止梯度操作是一个自然的结果，因为梯度不会反向传播到 $\eta^{t-1}$，而 $\eta^{t-1}$ 在这个子问题中是一个常数。
-
-子问题 (\ref{eq:eta_subproblem}) 可以独立地为每个 $\eta_{x}$ 求解。现在的问题是最小化$\mathbb{E}_{\mathcal{T}}\left[\|\mathcal{F}_{\theta^{t}}(\mathcal{T}(x))-\eta_{x} \|_{2}^{2}\right]$，其中期望是对数据增强 $\mathcal{T}$ 的分布进行的。由于使用均方误差，可以通过以下方式轻松求解：
-
-\begin{equation}
-\label{eq:eta_update}
-\eta_{x}^{t}\leftarrow\mathbb{E}_{\mathcal{T}}\Big{[}\mathcal{F}_{\theta^{t}}( \mathcal{T}(x))\Big{]}.
-\end{equation}
-这表明 $\eta_{x}$ 被赋值为 $x$ 在数据增强分布上的平均表示。
-
-SimSiam 可以通过在式(\ref{eq:theta_subproblem})和式(\ref{eq:eta_subproblem})之间进行一次交替来近似。首先，通过仅对数据增强采样一次(记为 $\mathcal{T}^{\prime}$)并忽略 $\mathbb{E}_{\mathcal{T}}[\cdot]$ 来近似式(\ref{eq:eta_update})：
-\begin{equation}
-\label{eq:eta_approx}
-\eta_{x}^{t}\leftarrow\mathcal{F}_{\theta^{t}}(\mathcal{T}^{\prime}(x)).
-\end{equation}
-将其代入子问题 (\ref{eq:theta_subproblem})，得到：
-
-\begin{equation}
-\label{eq:theta_update}
-\theta^{t+1}\leftarrow\arg\min_{\theta}\mathbb{E}_{x,\mathcal{T}}\Big{[}\big{\| }\mathcal{F}_{\theta}(\mathcal{T}(x))-\mathcal{F}_{\theta^{t}}(\mathcal{T}^{ \prime}(x))\big{\|}_{2}^{2}\Big{]}.
-\end{equation}
-现在 $\theta^{t}$ 在这个子问题中是一个常数，而 $\mathcal{T}^{\prime}$ 由于其随机性暗示了另一个视图。这种形式化展示了孪生网络架构。其次，如果通过一步 SGD 减少损失来实现式(\ref{eq:theta_update})，那么可以接近 SimSiam 算法：一个自然带有停止梯度操作的孪生网络。
-
-根据定义，预测器 $h$ 期望最小化：
-\begin{equation}
-\mathbb{E}_{x}\Big{[}\big{\|}h(z_{1})-z_{2}\big{\|}_{2}^{2}\Big{]} 
-\label{eq:target_of_h}
-\end{equation}
-其中，$z_i = \mathcal{F}(x_i)$，$x_i$表示输入$x$的第$i$个视图。$h$ 的最优解应满足：对于任何输入$x$， $h(z_{1})\!=\!\mathbb{E}_{z}[z_{2}]\!=\!\mathbb{E}_{\mathcal{T}}\big{[}\mathcal{F}( \mathcal{T}(x))\big{]}$ 。这个项类似于式(\ref{eq:eta_update})中的项。在式(\ref{eq:eta_approx})的近似中，期望 $\mathbb{E}_{\mathcal{T}}[\cdot]$ 被忽略了。$h$ 的使用可能填补了这一空白。在实践中，实际计算期望 $\mathbb{E}_{\mathcal{T}}$ 是不现实的。但神经网络(例如预测器 $h$)可能能够学习预测期望，而 $\mathcal{T}$ 的采样隐式分布在多个 epoch 中。
-
-根据上述讨论，$h$ 的最优解应满足 $h(z_1) = E_z[z_2]$。假设 $h$ 为线性映射，则有 $h(E[z_1]) = E[z_2]$。同时，根据对称损失函数式~(\ref{eq:cos_loss})，$h$ 的最优解应满足 $h(z_2) = E_z[z_1]$。将此关系代入，得到 $h(E[z_1]) = E[z_2]$，进一步推导得 $h(h(z_2)) = E[z_2]$。因此，可表示为：
-\begin{equation}
-    h(h(x)) = E[x]
-    \label{eq:derivation_of_h}
-\end{equation}
-
-这表明，在满足最优解的条件下，$h$ 很可能是输入变量 $x$ 到其期望值的平滑映射。假设 $h = E$，显然这是式~(\ref{eq:derivation_of_h}) 的一个特解。基于此，子问题~(\ref{eq:theta_subproblem}) 可以表述为：
-
-\begin{equation}
-    \arg\min_{\theta} \left[\| \mathcal{F}_{\theta}(x_1) - E(z_2) \|_2^2 + \| \mathcal{F}_{\theta}(x_2) - E(z_1) \|_2^2 \right]
-\end{equation}
-
-因此，SimSiam 的目标是最小化两个视图 \( x_1 \) 和 \( x_2 \) 输出特征期望值之间的距离，即使得 \( E(\mathcal{F}_\theta(x_1)) = E[z_2] \) 且 \( E(\mathcal{F}_\theta(x_2)) = E[z_1] \)，从而促使模型学习到在数据增强下保持不变的深层次语义。图~\ref{simsiam_derivation_of_features} 直观展示了模型训练前后特征分布的变化。在训练前，多个相似样本的两个视图的特征在特征空间中可能位于距离较远且形态各异的区域；而在训练后，两个视图的特征空间趋于重叠，且期望值之间的距离显著缩小。这表明，编码器成功学习到了对数据增强不敏感的深层次语义特征。此时，当 \( h \) 计算出 \( E[z_1] \) 时，即可得到式~(\ref{eq:target_of_h}) 的最优解，对于 \( z_2 \) 同理。
-
-然而，如果数据增强模块没有有效地带来多样化的特征空间分布(例如，训练前两个视图的特征空间已经趋于重叠)，那么当 \( h \) 学习到预测期望的能力时，编码器可能不再需要进一步学习那些与数据增强无关的深层语义特征。
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=12cm]{simsiam_derivation_of_features.pdf}
-    \caption{不同视图的模型特征输出分布的变化示意图}
-    \label{simsiam_derivation_of_features}
-\end{figure}
-\FloatBarrier  % 阻止后续浮动体越过这条线
-\subsection{简单暹罗孪生网络的数据增强模块}
-在对比表示学习算法中，数据增强(DA)起着至关重要的作用。网络的编码器(Encoder)能否成功地从振动信号中提取可区分的故障特征，依赖于为同一样本生成不同视图的质量。注意到，面向图像的最新(SOTA)对比表示学习算法广泛使用多种数据增强方法，而针对序列数据的增强方法则相对较少。
-用于生成正样本对的数据增强方法需满足语义一致性的要求，即加入的噪声或变换不能改变样本的故障类别等核心语义特征。同时，增强方法还应具备足够的多样性，以在特征空间中引入有效的变化，从而促进编码器学习具有判别性的深层语义表示（依据上一节的理论分析）。基于这一原则，本文选取了九种在语义保持与特征多样性之间具有良好平衡的数据增强方法：
-
-\begin{itemize}
-    \item \textbf{掩码(Random Masked)}：用于遮盖输入数据的一部分，即随机挑选信号的某些部分用 0 替代，通常是在序列数据或图像数据中随机选择部分区域进行掩码处理。这有助于模型在训练时学会忽略一些无关信息，从而提高其鲁棒性。
-
-    \item \textbf{添加高斯噪声(Adding Gaussian Noise)}：向数据中添加高斯噪声是一种常用的方法，旨在增强模型的鲁棒性。通过这种方式，模型能够在训练中适应噪声，从而提高其在噪声环境中的表现。
-
-    \item \textbf{相位扰动(Phase Perturbation)}：修改信号的频率域中的相位信息，而保持幅度不变来生成新的数据样本。这种方法保留了信号的整体结构，但引入了细微的扰动，用于提高模型的泛化能力。
-
-    \item \textbf{块打乱(RandomChunkShuffle)}：将时间序列数据分割成多个块，然后随机打乱这些块的顺序。这样可以创建不同的序列变体，增加模型对数据变异的适应能力，同时保持整体的语义不变。
-
-    \item \textbf{随机缩放(Random Scaled)}：对数据进行随机幅度缩放来增强数据的方法。通过改变数据的尺度，模型能够学习到不同幅度下的数据模式，从而提升其泛化能力。
-
-    \item \textbf{随机绝对值(Random Abs)}：对数据应用绝对值操作，将负值转换为正值或去掉负号。这个方法帮助模型处理包含负值的情形，增强其鲁棒性。
-
-    \item \textbf{竖直翻转(Random Vertical Flip)}：随机地将数据进行竖直翻转来创建新的样本。这对于一些对竖直方向变化不敏感的任务非常有效。
-
-    \item \textbf{水平翻转(Random Horizontal Flip)}：通过随机水平翻转图像或数据生成新样本，这对于具有较强对称性的数据特别有效，有助于提高模型的鲁棒性。
-
-    \item \textbf{时移(Time Shift)}：将数据在时间轴上平移一定的时间步长来生成新的样本。这种方法可以帮助模型学会适应时间序列数据中事件的变化位置，提升其对时间依赖的理解能力。
-\end{itemize}
-同一输入信号分别经过上述数据增强方法后的视图如图\ref{data_augmentation}所示。
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=10cm]{data_augmentation.pdf}
+    \includegraphics[width=10cm]{data_augmentation.png}
     \caption{数据增强方法效果示意图}
     \label{data_augmentation}
 \end{figure}
+\subsection{基于预训练编码器的有监督微调}
 
-简单暹罗孪生网络(SimSiam)的一个显著问题是可能出现所有输出“坍塌”为常数的平凡解。SimSiam通过数据增强生成两个视图，并直接最大化同一输入的两个视图之间的相似性，而不依赖于负样本对。因此，其性能在很大程度上依赖于数据增强策略的质量(不改变原语义的同时丰富特征空间)。然而，人工设计数据增强策略不仅耗时耗力，还难以获得最优方案。如图 \ref{simsiam_no_cma_tsne} 所示，基于人工设定的数据增强策略（包括 4dB 强度的高斯噪声、50\% 概率的随机前后翻转，以及随机裁剪 100、200 或 300 个样本）训练的 SimSiam 网络在特征提取效果上存在明显不足。，该策略未能有效提取样本间的区分性特征，导致相对大一部分类别的样本特征“糅杂”在一起。该节提出了基于协方差矩阵适应进化策略(Covariance Matrix Adaptation Evolution Strategy，下称CMA-ES)的最优数据增强策略搜索算法，
-将寻找最佳数据增强策略的问题形式化为一个搜索问题(见图 \ref{CMA-ES})。该方法由两个组件组成：搜索算法和搜索空间。在高层次上，搜索算法(实现为CMA-ES)采样一个数据增强策略 \( S \)，该策略包含有关使用哪种图像处理操作、每批次中使用该操作的概率以及操作幅度的信息。此方法的关键在于，策略 \( S \) 将用于训练具有固定架构的神经网络，其验证准确率 \( R \) 将返回以评估适应度。
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=6cm]{simsiam_no_cma_tsne.png}
-    \caption{基于人工设定数据增强策略(高斯噪声、随机前后翻转、随机裁剪)的SimSiam特征提取t-SNE图}
-    \label{simsiam_no_cma_tsne}
-\end{figure}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=8cm]{CMA-ES.pdf}
-    \caption{使用CMA-ES搜索最优的数据增强策略框架}
-    \label{CMA-ES}
-\end{figure}
-搜索空间细节：在搜索空间中，一个策略由 8 个信号数据增强子策略组成，如图\ref{data_augmentation}所示。此外，每个操作还关联两个超参数：
-
-\begin{enumerate}[label={(\arabic*)}]
-    \item 应用操作的概率\(\in [0,1]\)，
-    \item 操作的幅度映射后\(\in [0,10]\)。
-\end{enumerate}
-映射为线性变换，如变量\(x \in [a,b]\)到\(y \in [0,10]\)的变换为
+在自监督对比学习阶段完成编码器的预训练后，为将模型迁移至具体的下游故障分类任务，本文采用了基于冻结特征提取器的初步微调策略。
+微调过程中，我们固定预训练得到的编码器 $f(\cdot)$ 参数不变，仅在其输出后接入一个全连接分类器 $g(\cdot)$，其形式为：
 \begin{equation}
-    y = \frac{10(x - a)}{b - a}
-    \end{equation}
-以下介绍各个数据增强子策略幅度的表示：
-\begin{itemize}
-    \item \textbf{掩码(Random Masked)}：随机选取100个不重叠的大小为$s$的子区间，将其置0。$s$作为增强幅度由\([1,5]\)映射为\([0,10]\)。
-
-    \item \textbf{添加高斯噪声(Adding Gaussian Noise)}：将高斯噪声的信噪比SNR作为增强幅度，由\([2,6]\)映射为\([0,10]\)。
-
-    \item \textbf{相位扰动(Phase Perturbation)}：相位扰动服从均匀分布$\text{U}(-perturb_{\text{max}}, perturb_{\text{max}})$，$perturb_{\text{max}}$作为增强幅度由\([0.1,0.5]\)映射为\([0,10]\)。
-
-    \item \textbf{块打乱(RandomChunkShuffle)}：将时间序列数据分割成大小均匀的$s$个块，然后随机打乱这些块的顺序。$s$作为增强幅度由\([10,100]\)映射为\([0,10]\)。
-
-    \item \textbf{随机缩放(Random Scaled)}：缩放的幅度服从均匀分布$\text{U}(1.0-scale, 1.0+scale)$。$scale$作为增强幅度由\([0.05,0.6]\)映射为\([0,10]\)。
-
-    \item \textbf{随机绝对值(Random Abs)}：无幅度值。
-
-    \item \textbf{竖直翻转(Random Vertical Flip)}：无幅度值。
-
-    \item \textbf{水平翻转(Random Horizontal Flip)}：无幅度值。
-    
-\end{itemize}
-则CMA-ES优化器求解的问题可以描述为 
-\begin{equation}
-    \arg\max_{\mathbf{p}, \mathbf{s}} \text{Accuracy}(\mathbf{p}, \mathbf{s}, \text{SimSiam-Net})
+    \hat{y} = \text{softmax}(g(f(x)))
 \end{equation}
-其中，\(\mathbf{p}\) 和 \(\mathbf{s}\) 为求解的参数，分别满足 \(p_i \in [0, 1]\) 和 \(s_i \in [0, 10]\)，Accuracy为简单暹罗网络验证的准确率。
-\FloatBarrier  % 阻止后续浮动体越过这条线
+其中 $x$ 为输入样本，$f(x)$ 为提取的特征向量，$g(\cdot)$ 输出类别概率分布。
+
+为了进行有监督分类训练，本文采用标准的交叉熵损失函数作为优化目标，其定义如下：
+\begin{equation}
+    \mathcal{L}_{\text{CE}} = - \sum_{i=1}^{C} y_i \log(\hat{y}_i)
+\end{equation}
+其中 $C$ 为类别数，$y_i$ 为真实标签的 one-hot 编码，$\hat{y}_i$ 为对应类别的预测概率。
+
+
+% \FloatBarrier  % 阻止后续浮动体越过这条线
+
 \subsection{实验设置}
-\textbf{编码器(Encoder),预测器(Predictor)和分类器(Classifier)}：编码器是该算法中故障诊断的关键部分。本研究主要使用其潜在编码来完成分类任务。由于简单暹罗网络是一个框架，可以根据需要构建编码器模型和预测器，其中预测器是一个相对简单的非线性函数。在第二阶段，需要在预训练的编码器后添加一个分类器层用于故障诊断，如图\ref{simsiam_net}所示。为了方便起见，本研究使用多个常规的卷积神经网络(CNN)块来构建编码器，并使用全连接层来构建预测器和分类器。每个卷积块(CB)包括四个层：一个 1-D 卷积层\( f_{\text{BN}} \)、一个激活函数层 \( f_{\text{ReLU}} \)，以及一个池化层 \( f_{\text{Pool}} \)。 方程(\ref{eq:CNN})展示了 1-D 卷积层的操作，其中输入的形状为 \( (N, C_{\text{in}}, L) \)，输出的形状为 \( (N, C_{\text{out}}, L_{\text{out}}) \)，其中 \( N \) 是样本的数量，\( C \) 表示通道数，\( L \) 表示数据的长度。
+\textbf{编码器,预测器和分类器}：编码器是孪生网络结构中的关键部分。本研究主要使用其提取的故障特征来完成分类任务。由于孪生网络是一个框架，可以根据需要构建编码器模型和预测器，其中预测器是一个相对简单的非线性函数。在第二阶段，需要在预训练的编码器后添加一个分类器层用于故障诊断，如图~\ref{simsiam_net}所示。为了方便起见，本研究使用多个常规的卷积神经网络(CNN)块来构建编码器，并使用全连接层来构建预测器和分类器。模型的整体结构参数如表\ref{tab:simsiam_para}所示。每个卷积块(CB)包括三个层：一个 1-D 卷积层\( f_{\text{BN}} \)、一个激活函数层 \( f_{\text{ReLU}} \)，以及一个池化层 \( f_{\text{Pool}} \)。 方程(\ref{eq:CNN})展示了 1-D 卷积层的操作，其中输入的形状为 \( (N, C_{\text{in}}, L) \)，输出的形状为 \( (N, C_{\text{out}}, L_{\text{out}}) \)，其中 \( N \) 是样本的数量，\( C \) 表示通道数，\( L \) 表示数据的长度。
 \begin{equation}
     \begin{aligned}
     \operatorname{out}(N_i, C_{\mathrm{out}_j}) &= \operatorname{bias}(C_{\mathrm{out}_j}) + \sum_{k=0}^{C_{\mathrm{in}}-1} \operatorname{weight}(C_{\mathrm{out}_j}, k) \otimes \operatorname{input}(N_i, k).
@@ -803,6 +864,38 @@ BN 层 \( f_{\text{BN}} \) 用于加速训练过程并减少由于层输入分�
 \end{equation}
 
 在该实验中，堆叠了十个 CNN 块作为编码器，其中卷积层的核大小设置为 3，填充设置为 1，步幅设置为 1，隐藏层采用 256 个核。使用两个线性全连接层构建预测器，分别具有 \( 256 \times 512 \) 和 \( 512 \times 256 \) 个神经元。在它们之间放置了一个批归一化层和一个修正线性单元(ReLU)层。分类器层部署了两个线性全连接层，分别具有 \( 256 \times 256 \) 和 \( 256 \times \text{num\_class} \) 个神经元，其中 \(\text{num\_class}\) 表示故障类别的数量。在两个线性层之间也放置了一个批归一化层和一个 ReLU 层。
+
+\begin{table}[h]
+\centering
+\caption{简单暹罗孪生网络模型结构参数总览}
+\renewcommand\arraystretch{1.2}
+\begin{tabular}{c c c}
+\toprule
+模块 & 层级 & 参数说明 \\
+\midrule
+\multirow{5}{*}{编码器} 
+& Conv1d & 卷积核3，填充1，步长1，输入通道1，输出通道256 \\
+& ReLU & 激活函数 \\
+& BatchNorm1d & 归一化通道256 \\
+& MaxPool1d / AvgPool1d & 池化核2，步长2 \\
+& 重复上述结构 & 堆叠10次卷积+池化模块 \\
+\midrule
+\multirow{4}{*}{预测器} 
+& 线性层 & 输入特征256，输出特征512 \\
+& BatchNorm1d & 归一化通道512 \\
+& ReLU & 激活函数 \\
+& 线性层 & 输入特征512，输出特征256 \\
+\midrule
+\multirow{4}{*}{分类器} 
+& 线性层 & 输入特征256，输出特征256 \\
+& BatchNorm1d & 归一化通道256 \\
+& ReLU & 激活函数 \\
+& 线性层 & 输入特征256，输出特征为类别数 \\
+\bottomrule
+\end{tabular}
+\label{tab:simsiam_para}
+\end{table}
+
 
 \textbf{优化器(Optimizer)}：模型的训练不需要使用大批量优化器，例如分层自适应速率缩放(LARS)\citing{you2017large}，因为所提出的方法可以在典型批量大小下工作，而不依赖于大批量训练。本研究使用 SGD 优化器训练模型。网络参数通过公式 (\ref{eq:SGD}) 更新。
 \begin{equation}
@@ -842,7 +935,13 @@ BN 层 \( f_{\text{BN}} \) 用于加速训练过程并减少由于层输入分�
         \item 在第一阶段，随机选择每个故障类别的 100 个无标签样本进行模型训练，训练总计 500 个周期。
         \item 在第二阶段，根据式(\ref{pareto_sample})构造服从帕累托分布的长尾分布有标签样本，以此微调模型，微调总计 150 个周期。
     \end{itemize}
-    在整个训练过程中，每个输入模型的 mini-batch 大小设定为 \textbf{64}。
+    在整个训练过程中，每个输入模型的 mini-batch 大小设定为 64。
+
+\textbf{自适应数据增强}：  
+数据增强模块所采用的基本策略及其对应的增强强度映射关系如表~\ref{tab:augmentation_descriptions}所示。为了衡量特征的可分性，本文采用线性评估精度作为特征质量指标，具体做法是将全部样本的 80\% 用于训练线性分类器，其余 20\% 用于测试并计算分类准确率。该准确率作为当前增强策略下特征质量的衡量标准。
+
+在增强参数的优化方面，本文基于CMA-ES实现数据增强控制器。具体而言，将所有增强策略的执行概率 $p$ 与增强强度 $s$ 组成14维参数向量，作为CMA-ES的优化变量。控制器超参数设置如下：变量维度为14(即 $\text{len}(p) + \text{len}(s)$)，种群规模设定为11，最大迭代次数为10轮。
+
 \textbf{微调(Fine-tuning)}：在对比学习阶段完成后，从模型中取出训练好的编码器 \( f \)，并将其与一个多层感知器(MLP)模块连接，该MLP部署了两个线性全连接层，分别具有 \( 256 \times 256 \) 和 \( 256 \times \text{num\_class} \) 个神经元，其中 \(\text{num\_class}\) 表示故障类别的数量。在两个线性层之间也放置了一个批归一化层和一个 ReLU 层。用带标签的数据微调构建一个完整的分类器用于故障诊断任务，从而使模型获得分类能力。以准确率为性能指标，如公式 (\ref{eq:acc})：
     \begin{equation}
         \text{Accuracy} = \frac{TN + TP}{TN + TP + FP + FN}
@@ -859,267 +958,358 @@ BN 层 \( f_{\text{BN}} \) 用于加速训练过程并减少由于层输入分�
     
 \textbf{性能评估}：  
     测试集由每个故障类别均匀地随机选取 \textbf{100} 个样本组成。需要注意的是，微调过程中使用的子集、对比学习过程中用到的无监督数据集与测试集完全独立。  
-    用到的三种性能评估指标如下：
-
-    \begin{itemize}
-        \item 验证集准确率/宏平均召回率：在验证集上评估模型的分类准确率，以衡量模型的泛化能力。该指标表示了模型对未知数据的分类能力。计算公式如式(\ref{eq:acc})。宏平均召回率用于评估模型对各个类别的分类准确率，由于验证集的样本均匀分布，其数值上与准确率相等，计算公式如式(\ref{eq:macro_recall})。
-        
-        \item t-SNE特征提取可视化：使用t-SNE方法将高维特征降维至二维空间进行可视化分析，直观展示不同类别之间的聚类情况。该方法有助于分析模型对不同故障类别的区分能力。
-        \item 特征标准差：如果输出 \( z \) 具有零均值各向同性高斯分布，可以证明 \( \frac{z}{\|z\|_2} \) 的标准差为 \( \frac{1}{\sqrt{d}} \)。下证：假设 \( z \in \mathbb{R}^d \) 是一个零均值各向同性高斯分布，即 \( z \sim \mathcal{N}(0, I_d) \)，其中 \( I_d \) 是 \( d \) 维单位矩阵，表示协方差矩阵为单位矩阵，意味着每个分量 \( z_i \) 独立且服从标准正态分布。需要证明的是，\( \frac{z}{\|z\|_2} \) 的标准差(即每个分量的标准差)为 \( \frac{1}{\sqrt{d}} \)，其中 \( \|z\|_2 = \sqrt{\sum_{i=1}^{d} z_i^2} \) 是 \( z \) 的 \( L_2 \) 范数。以下证明：
-
-        设 \( z = (z_1, z_2, \dots, z_d) \)，则 \( z \) 的每个分量 \( z_i \) 都是独立的标准正态随机变量 \( z_i \sim \mathcal{N}(0, 1) \)，并且 \( \|z\|_2 = \sqrt{\sum_{i=1}^{d} z_i^2} \) 是 \( z \) 的欧几里得范数。关注向量 \( \frac{z}{\|z\|_2} \) 的每个分量。
-        令 \( \hat{z} = \frac{z}{\|z\|_2} \)，即 \( \hat{z} \) 是单位向量，表示将 \( z \) 投影到单位球面上的结果。
+    用到的四种性能评估指标如下：
     
-        因为 \( z \) 是各向同性高斯分布，其方向是均匀分布在单位球面上的。对于标准化后的向量 \( \hat{z} \)，每个分量 \( \hat{z}_i = \frac{z_i}{\|z\|_2} \) 的分布不再是标准正态分布，而是受到范数约束的结果。由于 \( z \) 是各向同性的，\( \hat{z}_i \) 的分布是对称的，所有分量 \( \hat{z}_i \) 的期望值为 0。因此，接下来计算 \( \hat{z}_i \) 的方差。
-        对于 \( \hat{z}_i \) 的方差，有：
-        \begin{equation}
-        \text{Var}(\hat{z}_i) = \mathbb{E}[\hat{z}_i^2] - (\mathbb{E}[\hat{z}_i])^2
-        \end{equation}
-        由于 \( \mathbb{E}[\hat{z}_i] = 0 \)，只需要计算 \( \mathbb{E}[\hat{z}_i^2] \)。
+    验证集准确率/宏平均召回率：在验证集上评估模型的分类准确率，以衡量模型的泛化能力。该指标表示了模型对未知数据的分类能力。计算公式如式(\ref{eq:acc})。宏平均召回率用于评估模型对各个类别的分类准确率，由于验证集的样本均匀分布，其数值上与准确率相等，计算公式如式(\ref{eq:macro_recall})。
     
-        \begin{equation}
-        \mathbb{E}[\hat{z}_i^2] = \mathbb{E}\left[\frac{z_i^2}{\|z\|_2^2}\right] = \frac{\mathbb{E}[z_i^2]}{\mathbb{E}[\|z\|_2^2]} = \frac{1}{d}
-        \end{equation}
-        其中 \( \mathbb{E}[z_i^2] = 1 \)(因为 \( z_i \) 是标准正态分布)，而 \( \mathbb{E}[\|z\|_2^2] = \mathbb{E}[\sum_{i=1}^{d} z_i^2] = d \)，因为每个 \( z_i^2 \) 的期望为 1。
-        由于方差 \( \text{Var}(\hat{z}_i) = \frac{1}{d} \)，因此标准差是：
-        \begin{equation}
-        \text{std}(\hat{z}_i) = \frac{1}{\sqrt{d}}
-        \end{equation}
+    t-SNE特征提取可视化：使用t-SNE方法将高维特征降维至二维空间进行可视化分析，直观展示不同类别之间的聚类情况。该方法有助于分析模型对不同故障类别的区分能力。
+    
+    归一化特征标准差：用于衡量编码器所提取特征的分布情况，从而评估对比学习模型的表征能力。具体方法为：对训练集中所有样本，通过预训练编码器提取特征 $\mathbf{z}_i \in \mathbb{R}^d$，并对每个特征向量进行 $L_2$ 归一化，得到单位范数特征 $\tilde{\mathbf{z}}_i = \frac{\mathbf{z}_i}{\|\mathbf{z}_i\|_2}$。随后，对归一化特征的每一维计算标准差 $\sigma_j$，并取其平均值作为最终评估指标：$\bar{\sigma} = \frac{1}{d} \sum_{j=1}^d \sigma_j$。该指标反映了特征空间的分布多样性，进而用于判断模型是否发生表征退化或网络坍塌。当 $\bar{\sigma}$ 接近 $1/\sqrt{d}$ 时，表示模型提取的特征分布充分、表征能力良好；而当 $\bar{\sigma} \to 0$ 时，则表明所有特征趋于一致，网络可能已发生坍塌，丧失有效表征能力。
+    
+    验证集KMeans分类准确率：在验证集上使用KMeans算法对Encoder提取的特征进行无监督分类，并计算分类准确率。通过与真实标签对比，评估模型在无监督情境下的表现，进一步验证其分类能力。
 
-        \item 验证集KMeans分类准确率：在验证集上使用KMeans算法对Encoder提取的特征进行无监督分类，并计算分类准确率。通过与真实标签对比，评估模型在无监督情境下的表现，进一步验证其分类能力。
-    \end{itemize}     
-
-
-\textbf{故障诊断(Fault Diagnosis)}：在完成微调后，即可将模型应用于真实输入信号的故障诊断，以预测故障类别。
-% \begin{figure}[h]
-%     \centering
-%     \includegraphics[width=14cm]{simsiam_fault_diag_procedure.pdf}
-%     \caption{简单暹罗孪生故障诊断网络的训练流程图}
-%     \label{simsiam_fault_diag_procedure}
-% \end{figure}
 \FloatBarrier  % 阻止后续浮动体越过这条线
 \section{实验与分析}
-为了验证所提出方法的有效性，本研究选择了CWRU数据集和PU数据集进行实验。为了验证所提方法的优越性，选择了几种流行的对比方法，分为传统机器学习算法和基于深度学习的智能方法两类。
+为了验证所提出方法的有效性，本研究选择了CWRU数据集进行实验。为了验证所提方法的优越性，选择了几种流行的对比方法，分为传统机器学习算法和基于对比学习的智能方法两类。
 \begin{enumerate}[label={(\arabic*)}]
     \item \textbf{SVM\citing{ziani2017bearing}}：多类 SVM 是一种强大且多功能的机器学习模型，能够处理线性或非线性的分类任务，通过构建多个二分类器来实现对多个类别的区分。首先，将计算原始数据的 16 个时域指标(均值、平方根、偏度等)，并将它们作为 SVM 分类器的输入。
 
     \item \textbf{CNN\citing{eren2019generic}}：CNN 是一种监督学习方法。在这里，CNN 的网络架构与所提出方法的编码器 \(f\) 相同。
 
     \item \textbf{BYOL\citing{grill2020bootstrap}}：BYOL(Bootstrap Your Own Latent)是一种基于自监督学习的表示学习方法。与传统的对比学习方法不同，BYOL 不依赖于负样本对进行训练，而是通过最大化正样本对之间的相似度，从而学习到更具判别性的图像表示。该方法采用两个神经网络模块，其中一个作为在线网络，另一个作为目标网络，通过不断更新目标网络来提高模型的稳定性和性能。两个网络共享相同的编码器 \(f\)，但参数更新的方式不同：在线网络的参数通过反向传播进行更新，而目标网络的参数则通过指数滑动平均进行更新。编码器 \(f\) 和数据增强方法与所提出方法相同。
-    
+
     \item \textbf{SimCLR\citing{chen2020simple}}：SimCLR 是一种基于对比学习的自监督表示学习方法，通过构造正负样本对并最大化正样本对的相似度，从而学习出具有高质量表示的特征。该方法使用一个编码器 \(f\)，通常是一个卷积神经网络(CNN)，并通过数据增强技术生成不同的图像视图。SimCLR 的训练目标是最大化正样本对的相似性，同时最小化负样本对的相似性，来优化表示学习的质量。该方法的关键创新是引入了基于温度缩放的对比损失函数，进而提升了模型的表达能力。编码器 \(f\) 和数据增强方法与所提出方法相同。
 
+    \item \textbf{SwAV\citing{caron2020unsupervised}}：SwAV(Swapping Assignments between Views)是一种自监督学习方法，通过在线聚类将不同视图的特征分配到相同的簇，从而实现无监督的特征学习。不同于传统对比学习依赖于负样本对，SwAV 利用“簇分配交换”的机制，最大化不同增强视图间的聚类一致性，从而提升模型的表征能力。该方法使用与所提出方法相同的编码器 \(f\) 及数据增强策略。
+
+    \item \textbf{MoCo v2\citing{chen2020improved}}：MoCo v2(Momentum Contrast v2)是基于动量编码器的对比学习方法，采用一个动态字典和动量更新的队列机制，保持负样本的多样性和一致性。MoCo v2 通过动量更新目标编码器的参数，避免了对比学习中负样本不足的问题，同时结合了更强的数据增强和归一化策略来提升性能。编码器 \(f\) 和数据增强方法与所提出方法相同。
+
 \end{enumerate}
+
 \FloatBarrier  % 阻止后续浮动体越过这条线
-\subsection{数据增强策略搜索的结果}
-\label{sec:CMA-ES_result}
 
-采用CWRU 数据集 作为对比学习预训练的无标签数据，样本总数为 \textbf{500} 个。用于微调的有标签数据共 \textbf{100} 个，涵盖 \textbf{10} 个类别，每类包含 \textbf{10} 个样本。各类别信号的时域波形如图 \ref{cwru_samples} 所示。
+\subsection{在CWRU数据集和PU数据集上的实验结果}
+表~\ref{tab:autoaugment_accuracy_estimate} 与表~\ref{tab:autoaugment_accuracy_estimate_pu} 分别展示了 CWRU 数据集和 PU 数据集上各类主流对比学习方法引入自适应增强策略 AutoAugment 前后的分类准确率变化。总体来看，AutoAugment 为绝大多数对比学习方法带来了显著的性能提升，充分验证了该增强策略在提升故障诊断模型泛化能力方面的有效性和广泛适用性。
 
-在优化过程中，基于协方差矩阵适应进化策略(CMA-ES)进行最优数据增强策略的搜索。CMA-ES 的超参数设定如下：变量维度为 \textbf{14}(即 \(len(\mathbf{p}) + len(\mathbf{s})\))，种群规模设定为 \textbf{11}，最大迭代次数设定为 \textbf{10} 轮。经过优化后，所获得的最优数据增强策略如表 \ref{CMA-ES_solution} 所示。
+具体分析，SimCLR 和 SimSiam 在两个数据集上的表现最为突出，准确率分别提升了 4.85\% 和 3.79\%，以及 4.15\% 和 3.53\%。这一结果表明这两种方法对增强策略高度敏感，自适应增强通过生成更具判别性的视图对，有效强化了特征对比学习过程，提升了编码器表征的质量和区分能力。
+
+相比之下，BYOL 在两个数据集上的提升较为有限，准确率分别提高了 0.91\% 和 2.00\%。这可能是由于 BYOL 采用无负样本训练机制，其性能依赖于视图间的语义一致性，虽然增强策略增加了样本多样性，但一定程度上扰动了视图对之间的语义一致性，导致性能增益较小。
+
+MoCo v2 和 SwAV 在 CWRU 数据集上的准确率提升分别为 3.12\% 和 2.39\%，而在 PU 数据集上的提升幅度明显降低至 0.23\% 和 0.62\%。这一现象或许源于 PU 数据集类间区分度较高且噪声水平较低，增强策略对模型性能的边际提升有所减弱。但二者仍然表现出一定的性能增长，验证了 AutoAugment 的稳定适用性。
+
+此外，传统监督学习基线 CNN 和 SVM 未采用自监督训练及增强模块，其准确率保持不变，进一步突出自监督方法结合自适应增强策略所带来的性能优势。
+
+综上，AutoAugment 作为一种通用自适应数据增强策略，在不同工业故障诊断数据集和多种对比学习模型中均展现出良好的提升效果，尤其对 SimCLR 和 SimSiam 贡献显著，为提高模型泛化能力提供了有效途径。
+
+在前文中，我们验证了自适应增强策略 AutoAugment 在均匀分布数据集上的有效性。为了进一步探讨所提方法在更具挑战性的长尾分布数据环境中的表现，下一节将基于长尾分布的 CWRU 数据集和 PU 数据集展开实验分析，评估模型在类别不平衡条件下的诊断性能和泛化能力。
+
 
 \begin{table}[h]
-    \caption{CMA-ES 搜索最优的数据增强策略参数}
     \centering
-    \begin{tabular}{cccc}
-    \toprule
-    增强编号 & 增强名称 & 概率 $p$ & 幅度 $s$\\
-    \midrule
-    DA0 & 高斯噪声 & 0.9761 & 9.6284 \\
-    DA1 & 相位扰动 & 0.9899 & 3.4435 \\
-    DA2 & 块打乱 & 0.9687 & 1.3436 \\
-    DA3 & 掩码 & 0.7873 & 8.1961 \\
-    DA4 & 缩放 & 0.5776 & 7.8206 \\
-    DA5 & 绝对值 & 0.4020 & -- \\
-    DA6 & 竖直翻转 & 0.4392 & -- \\
-    DA7 & 水平翻转 & 0.4420 & -- \\
-    \bottomrule
+    \caption{CWRU数据集各类对比学习方法加入 AutoAugment 后的准确率变化}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{lccc}
+        \toprule
+        方法 & 原始准确率 & 加入 AutoAugment 后准确率 & 涨幅 \\
+        \midrule
+        SimSiam & 88.29\% & 92.08\% & \textbf{+3.79\%} \\
+        SimCLR  & 89.13\% & 93.98\% & \textbf{+4.85\%} \\
+        BYOL    & 88.13\% & 89.04\% & +0.91\% \\
+        MoCo v2 & 89.69\% & 92.81\% & +3.12\% \\
+        SwAV    & 90.21\% & 92.60\% & +2.39\% \\
+        CNN     & 89.79\% & -        & - \\
+        SVM     & 71.98\% & -        & - \\
+        \bottomrule
     \end{tabular}
-    \label{CMA-ES_solution}
+    \label{tab:autoaugment_accuracy_estimate}
 \end{table}
-\FloatBarrier  % 阻止后续浮动体越过这条线
-\subsection{在CWRU数据集和PU数据集上的实验结果}
-\label{simsiam_cwru_results}
-在本节中，采用表\ref{CMA-ES_solution} 所示的数据增强参数，并使用 CWRU 数据集和PU数据集作为数据集。对比学习预训练的无标签数据集的样本总数为 100$\times$类别数个，用于微调的有标签数据共计10$\times$类别数个，并通过帕累托分布生成不同不平衡因子的长尾分布标记样本。最终，在样本分布均匀的测试集上计算分类准确率，并进行 5 次重复试验取平均值。表\ref{simsiam_simclr_byol_cnn_svm_results} 和表\ref{pu_simsiam_simclr_byol_cnn_svm_results} 展示了在不同不平衡因子 $\beta$ 下，五种方法(SimSiam、SimCLR、BYOL、CNN 及 SVM)在 CWRU 数据集与 PU 数据集上的分类准确率与宏平均召回率。宏观上看，对比学习方法(尤其是 SimCLR 和 SimSiam)在不同程度的不平衡条件下均表现出较强的鲁棒性与稳定性，显著优于传统的浅层方法SVM及基于监督学习的 CNN。
 
-在 CWRU 数据集上，SimCLR 在所有 $\beta$ 值下均取得了最优或接近最优的结果，平均准确率/召回率达到 0.9265，表现最为稳健。SimSiam 紧随其后，平均值为 0.9131，亦具备良好的不平衡适应能力。相较之下，BYOL 平均性能为 0.8610，略低于前两者，而 CNN 和 SVM 的平均值分别为 0.7420 与 0.4305，显示出其对不平衡分布较为敏感，尤其在 $\beta = 100$ 时性能大幅下降。
+\begin{table}[h]
+    \centering
+    \caption{PU数据集各类对比学习方法加入 AutoAugment 后的准确率变化}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{lccc}
+        \toprule
+        方法 & 原始准确率 & 加入 AutoAugment 后准确率 & 涨幅 \\
+        \midrule
+        SimSiam & 78.62\% & 82.15\% & \textbf{+3.53\%} \\
+        SimCLR  & 77.85\% & 82.00\% & \textbf{+4.15\%} \\
+        BYOL    & 73.54\% & 75.54\% & +2.00\% \\
+        MoCo v2 & 79.15\% & 79.38\% & +0.23\% \\
+        SwAV    & 76.00\% & 76.62\% & +0.62\% \\
+        CNN     & 62.73\% & -        & - \\
+        SVM     & 50.36\% & -        & - \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:autoaugment_accuracy_estimate_pu}
+\end{table}
 
-类似地，在 PU 数据集上，SimCLR 与 SimSiam 分别以 0.6494 和 0.6412 的平均值占据前两位，显著高于 BYOL(0.6001)、CNN(0.5211)与 SVM(0.2989)。尤其值得注意的是，随着不平衡程度的加剧($\beta$ 从 1 增至 100)，SVM 表现急剧下滑，说明其对类别分布极为敏感，而对比学习方法仍能保持相对稳定的性能。
+\subsection{在长尾分布的CWRU数据集和PU数据集上的实验结果}
+表~\ref{tab:longtail_autoaugment_comparison} 和表~\ref{tab:longtail_autoaugment_comparison_pu} 分别展示了在 CWRU 和 PU 两个长尾分布数据集上，不同类别不平衡程度下，主流对比学习方法以及传统机器学习方法在引入自适应增强策略 AutoAugment 前后的准确率变化情况。整体来看，AutoAugment 对多数自监督对比学习模型均带来了明显的性能提升，且随着数据分布的不均衡程度加剧，增强策略的积极作用愈发突出，尤其是在少数类样本稀缺的条件下表现尤为显著。
 
-图\ref{tsne_of_all_models} 展示了 SimSiam、SimCLR、BYOL、CNN 和 SVM 五种方法(CNN和SVM基于不平衡因子$\beta$为1训练)在均匀分布与长尾分布数据集上的 t-SNE 特征投影。通过这些图示，可以直观地观察不同类别样本在低维空间中的分布情况，从而评估各方法的特征提取效果。SimSiam 的 t-SNE 可视化结果（图 \ref{simsiam_tsne}）展示了较为理想的特征分布，不同类别之间边界清晰，且各类样本未出现明显混合，聚类效果良好。相比之下，其余模型的 t-SNE 图中普遍存在不同类别样本的交叉重叠现象，给线性分类器带来了较大的分类困难。然而，该可视化结果与表 \ref{simsiam_simclr_byol_cnn_svm_results} 中的定量评估结果存在一定差异，针对该问题将在下一章中进一步分析并提出改进策略。
+具体分析可见，SimSiam 和 SimCLR 作为代表性的对比学习框架，在所有测试的不平衡系数 $\beta$ 下均表现出稳健且显著的提升趋势。以 CWRU 数据集最极端的不平衡情况（$\beta=100$）为例，SimSiam 的准确率由 82.38\% 上升到 87.60\%，提升了约 5.22 个百分点；SimCLR 更是从 83.46\% 提升至 90.04\%，增幅达到 6.58 个百分点。这充分说明 AutoAugment 生成的多样化、富有变化的增强样本为模型提供了更多不同的特征视角，极大地增强了模型对尾部少数类别的判别能力，缓解了样本稀缺导致的过拟合和偏差问题。在 PU 数据集上，两者同样表现出良好的迁移适应性和稳定性，最大提升幅度分别达到 4.15\% 和 4.00\%。
+
+相比之下，BYOL 在两个数据集上的表现相对波动较大。在 CWRU 数据集中，尤其是中度不平衡情况下，准确率甚至出现了小幅下降，表明其对增强扰动较为敏感。PU 数据集上的表现则有所改善，最高提升达到 3.23\%，但整体仍不及 SimSiam 和 SimCLR。该现象可能与 BYOL 训练时对不同视图间特征一致性的严格依赖有关，增强引入的强扰动可能影响了其稳定性，限制了性能的进一步提升。
+
+MoCo v2 和 SwAV 则表现出较强的适应性，尤其是在中高不平衡条件下提升明显。MoCo v2 通过动量编码机制稳定了特征更新过程，使得模型能够更有效地利用增强样本中的多样信息，CWRU 数据集最不均衡时提升达到 5.62 个百分点，PU 数据集中中度不平衡时提升 3.69\%。SwAV 采用多视角聚类策略，有助于捕获类别内多样性，进一步提升了尾部类别的表征能力，PU 数据集中在中度不平衡时提升达到 4.77\%。这些结果表明，结构设计上更注重样本多样性和特征稳定性的模型，更能从增强策略中获益。
+
+而传统的 CNN 和 SVM 方法在面对长尾分布数据时表现出明显劣势。两者的准确率随着样本不均衡加剧而大幅下降，且几乎没有从 AutoAugment 中获得提升，反映出传统监督学习方法在处理极度不平衡的工业故障数据时，难以有效捕捉少数类别的特征差异，泛化能力不足。这进一步凸显了自监督对比学习结合自适应增强策略在解决工业长尾分布问题上的独特优势。
+
+此外，从两个数据集的对比结果可以看出，AutoAugment 在不同工业环境与数据分布下均表现出较强的通用性和稳定性，验证了该方法的广泛适用价值。通过引入自适应的数据增强，模型不仅提升了整体准确率，更显著改善了少数类的识别效果，为实际工业设备故障诊断中常见的类别不平衡问题提供了一条有效且可推广的解决路径。
+
+综上所述，AutoAugment 作为一种灵活且高效的数据增强策略，结合现代对比学习方法，能够显著缓解长尾分布数据中的类别不均衡问题，提升模型对稀缺故障类别的识别能力。未来可以进一步探索增强策略与模型结构的协同优化，结合领域知识设计更具针对性的增强方法，从而推动工业故障诊断技术向更加精准和智能化方向发展。
+
+
 
 \begin{table}[!h]
-    \caption{CWRU数据集SimSiam、SimCLR、BYOL、CNN 与 SVM 在不同 $\beta$ 值下的准确率/宏平均召回率}
+    \caption{CWRU 数据集上不同 $\beta$ 值下各方法在 AutoAugment 策略加入前后的准确率变化}
     \centering
-    \begin{tabular}{ccccccc}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{ccccc}
     \toprule
-    不平衡因子$\beta$  & SimSiam & SimCLR & BYOL & CNN & SVM \\
+    $\beta$ & 方法 & 原始准确率 & 加入 AutoAugment 后 & 涨幅 \\
     \midrule
-    1   & 0.9208  & 0.9398 & 0.8904 & 0.8979 & 0.7198 \\
-    10  & 0.9423  & 0.9458 & 0.8942 & 0.8538 & 0.2990 \\
-    50  & 0.9133  & 0.9198 & 0.8481 & 0.6804 & 0.3917 \\
-    100 & 0.8760  & 0.9004 & 0.8112 & 0.5358 & 0.3115 \\
+    \multirow{6}{*}{1}   
+        & SimSiam & 88.29\% & 92.08\% & \textbf{+3.79\%} \\
+        & SimCLR  & 89.13\% & 93.98\% & \textbf{+4.85\%} \\
+        & BYOL    & 88.13\% & 89.04\% & +0.91\% \\
+        & MoCo v2 & 89.69\% & 92.81\% & +3.12\% \\
+        & SwAV    & 90.21\% & 92.60\% & +2.39\% \\
+        & CNN     & 89.79\% & -       & - \\
+        & SVM     & 71.98\% & -       & - \\
     \midrule
-    平均值 & \textbf{0.9131} & \textbf{0.9265} & 0.8610 & 0.7420 & 0.4305 \\
+    \multirow{6}{*}{10}  
+        & SimSiam & 89.56\% & 94.23\% & \textbf{+4.67\%} \\
+        & SimCLR  & 91.46\% & 94.58\% & +3.12\% \\
+        & BYOL    & 90.63\% & 89.42\% & -1.21\% \\
+        & MoCo v2 & 88.44\% & 88.23\% & -0.21\% \\
+        & SwAV    & 86.88\% & 93.54\% & \textbf{+6.67\%} \\
+        & CNN     & 85.38\% & -       & - \\
+        & SVM     & 29.90\% & -       & - \\
+    \midrule
+    \multirow{6}{*}{50}  
+        & SimSiam & 85.94\% & 91.33\% & \textbf{+5.39\%} \\
+        & SimCLR  & 86.69\% & 91.98\% & \textbf{+5.29\%} \\
+        & BYOL    & 83.02\% & 84.81\% & +1.79\% \\
+        & MoCo v2 & 81.98\% & 82.92\% & +0.94\% \\
+        & SwAV    & 77.92\% & 82.40\% & \textbf{+4.48\%} \\
+        & CNN     & 68.04\% & -       & - \\
+        & SVM     & 39.17\% & -       & - \\
+    \midrule
+    \multirow{6}{*}{100} 
+        & SimSiam & 82.38\% & 87.60\% & \textbf{+5.22\%} \\
+        & SimCLR  & 83.46\% & 90.04\% & \textbf{+6.58\%} \\
+        & BYOL    & 74.48\% & 81.12\% & \textbf{+6.64\%} \\
+        & MoCo v2 & 78.13\% & 83.75\% & \textbf{+5.62\%} \\
+        & SwAV    & 78.65\% & 82.40\% & +3.75\% \\
+        & CNN     & 53.58\% & -       & - \\
+        & SVM     & 31.15\% & -       & - \\
     \bottomrule
     \end{tabular}
-    \label{simsiam_simclr_byol_cnn_svm_results}
+    \label{tab:longtail_autoaugment_comparison}
 \end{table}
 
 \begin{table}[!h]
-    \caption{PU数据集SimSiam、SimCLR、BYOL、CNN 与 SVM 在不同 $\beta$ 值下的准确率/宏平均召回率}
+    \caption{不同预训练模型在 PU 数据集上各 $\beta$ 值下的 Fine-tune 准确率}
     \centering
-    \begin{tabular}{ccccccc}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{ccccc}
     \toprule
-    不平衡因子$\beta$  & SimSiam & SimCLR & BYOL & CNN & SVM \\
+    $\beta$ & 方法 & 原始准确率 & 加入 AutoAugment 后准确率 & 涨幅 \\
     \midrule
-    1   & 0.6443  & 0.6543 & 0.6246 & 0.6273 & 0.5036 \\
-    10  & 0.6627  & 0.6597 & 0.6229 & 0.6018 & 0.2046 \\
-    50  & 0.6418  & 0.6511 & 0.5870 & 0.4770 & 0.2710 \\
-    100 & 0.6158  & 0.6324 & 0.5660 & 0.3784 & 0.2163 \\
+    \multirow{5}{*}{1}   
+        & SimSiam  & 78.62\% & 82.15\% & \textbf{+3.53\%} \\
+        & SimCLR   & 77.85\% & 82.00\% & \textbf{+4.15\%} \\
+        & BYOL     & 73.54\% & 75.54\% & +2.00\% \\
+        & MoCo v2  & 79.15\% & 79.38\% & +0.23\% \\
+        & SwAV     & 76.00\% & 76.62\% & +0.62\% \\
+        & CNN     & 62.73\% & -      & - \\
+        & SVM     & 50.36\% & -      & - \\
     \midrule
-    平均值 & \textbf{0.6412} & \textbf{0.6494} & 0.6001 & 0.5211 & 0.2989 \\
+    \multirow{5}{*}{10}  
+        & SimSiam  & 76.00\% & 79.54\% & \textbf{+3.54\%} \\
+        & SimCLR   & 75.38\% & 79.38\% & \textbf{+4.00\%} \\
+        & BYOL     & 71.38\% & 74.38\% & \textbf{+3.00\%} \\
+        & MoCo v2  & 72.46\% & 76.15\% & \textbf{+3.69\%} \\
+        & SwAV     & 68.92\% & 73.69\% & \textbf{+4.77\%} \\
+        & CNN     & 60.18\% & -      & - \\
+        & SVM     & 20.46\% & -      & - \\
+    \midrule
+    \multirow{5}{*}{50} 
+        & SimSiam  & 69.85\% & 71.54\% & +1.69\% \\
+        & SimCLR   & 70.46\% & 73.00\% & +2.54\% \\
+        & BYOL     & 62.31\% & 63.92\% & +1.61\% \\
+        & MoCo v2  & 70.92\% & 74.00\% & \textbf{+3.08\%} \\
+        & SwAV     & 72.00\% & 72.92\% & +0.92\% \\
+        & CNN     & 47.70\% & -      & - \\
+        & SVM     & 27.10\% & -      & - \\
+    \midrule
+    \multirow{5}{*}{100}  
+        & SimSiam  & 69.23\% & 70.08\% & +0.85\% \\
+        & SimCLR   & 68.15\% & 70.77\% & +2.62\% \\
+        & BYOL     & 55.85\% & 59.08\% & \textbf{+3.23\%} \\
+        & MoCo v2  & 64.77\% & 67.08\% & +2.31\% \\
+        & SwAV     & 64.31\% & 66.62\% & +2.31\% \\
+        & CNN     & 37.84\% & -      & - \\
+        & SVM     & 21.63\% & -      & - \\
     \bottomrule
     \end{tabular}
-    \label{pu_simsiam_simclr_byol_cnn_svm_results}
+    \label{tab:longtail_autoaugment_comparison_pu}
 \end{table}
+\FloatBarrier
 
-\begin{figure}[h]
+\subsection{基于T-SNE的特征提取可视化的实验结果}
+图~\ref{tsne_of_all_models}与图~\ref{tsne_of_all_models_pu}分别展示了在CWRU数据集与PU数据集上，SimSiam、SimCLR、BYOL、MoCo 以及 SwAV 这五种主流自监督学习方法在引入 AutoAugment 数据增强策略前后，于均匀分布验证集上的 t-SNE 特征可视化结果。通过这些低维映射图，可以直观地观察各类样本在嵌入空间中的分布状态，从而评估各方法在无监督特征提取任务中的判别能力和表征学习质量。
+
+在 CWRU 数据集的可视化图(图~\ref{tsne_of_all_models})中，可以明显观察到 SimSiam 在未采用 AutoAugment 时(图~\ref{simsiam_baseline_tsne})的特征表示存在显著的类别重叠，多个类别之间边界模糊，聚类效果较差。加入 AutoAugment 后(图~\ref{simsiam_tsne})，特征空间中的各类样本聚类效果明显增强，类别边界更加清晰，整体类间分布呈现出较强的区分性，说明 AutoAugment 在提升 SimSiam 特征提取质量方面具有显著作用。类似地，SimCLR、BYOL、MoCo 和 SwAV 在使用 AutoAugment 后(图~\ref{simclr_tsne}、图~\ref{byol_tsne}、图~\ref{moco_tsne}、图~\ref{swav_tsne})也表现出更清晰的类间分离效果，与未增强版本(图~\ref{simclr_baseline_tsne}、图~\ref{byol_baseline_tsne}、图~\ref{moco_baseline_tsne}、图~\ref{swav_baseline_tsne})相比，特征重叠显著减少。不过，需要指出的是，即便引入 AutoAugment，部分模型在某些类别之间仍存在边界模糊或轻微混淆的现象，提示在极端工况或细粒度故障类型下，特征提取仍有进一步提升空间。
+
+而在更具挑战性的 PU 数据集上(图~\ref{tsne_of_all_models_pu})，t-SNE 可视化结果呈现出更为复杂的分布形态。在未引入 AutoAugment 前，各模型普遍存在严重的特征混叠，类别间难以区分，显示出该数据集在特征学习上的困难性。引入 AutoAugment 后，大多数模型的类间重叠有所减轻，类内聚集程度提高，但相较 CWRU 数据集，其改善幅度较小，说明 AutoAugment 的增强能力在更复杂、更长尾分布的数据条件下仍受到一定限制。此外，PU 数据集中的部分类别样本数量极少，导致即使通过数据增强，仍难以获得良好的特征区分能力，这也为下游分类器训练带来了更大的挑战。该趋势与表~\ref{tab:longtail_autoaugment_comparison_pu}中较低的分类性能指标相互印证，进一步强调了在长尾分布背景下特征学习方法仍需优化。
+
+总体来看，AutoAugment 的引入在所有自监督方法中都有效提升了其在特征学习阶段的判别性能，增强了类内聚集和类间分离的能力。这种提升在两个数据集上均有体现，并与表~\ref{tab:autoaugment_accuracy_estimate} 和表~\ref{tab:longtail_autoaugment_comparison_pu}中的定量评估结果相一致。然而，也应注意到，特征空间可视化的改善并不总是直接转化为分类性能的提升。例如，在 CWRU 数据集中，尽管 SimSiam 的特征分布相比 SimCLR 更加分明，表明其在特征表示能力上有所优势，但在最终分类结果上，SimCLR 仍在多个 $\beta$ 值下表现优于 SimSiam。特别是在 $\beta=100$ 时，SimSiam 的分类准确率比 SimCLR 低了 2.44\%。这种偏差可能是由于微调阶段的分类器在训练过程中仍受到长尾数据分布带来的样本不均衡影响，导致模型更容易对高频类别过拟合，从而影响整体分类表现。
+
+\begin{figure}[H]
     \centering
+    % 第一行：SimSiam、SimCLR、BYOL
     \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simsiam_tsne.png}
+        \includegraphics[width=0.26\linewidth]{simsiam_baseline.png}
+        \label{simsiam_baseline_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{simclr_baseline.png}
+        \label{simclr_baseline_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{byol_baseline.png}
+        \label{byol_baseline_tsne}
+    }
+    \\
+    % 第二行：MoCo、SwAV
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{moco_baseline.png}
+        \label{moco_baseline_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{swav_baseline.png}
+        \label{swav_baseline_tsne}
+    }
+    \\
+    % 第三行：SimSiam AA、SimCLR AA、BYOL AA
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{simsiam_tsne.png}
         \label{simsiam_tsne}
     }
     \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simclr_batch_size_16.png}
+        \includegraphics[width=0.26\linewidth]{simclr_batch_size_16.png}
         \label{simclr_tsne}
     }
     \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{byol_batch_size_128.png}
+        \includegraphics[width=0.26\linewidth]{byol_batch_size_128.png}
         \label{byol_tsne}
     }
     \\
+    % 第四行：MoCo AA、SwAV AA、CNN、SVM
     \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{cnn_tsne.png}
-        \label{cnn_tsne}
+        \includegraphics[width=0.26\linewidth]{moco_tsne.png}
+        \label{moco_tsne}
     }
     \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{svm_tsne.png}
-        \label{svm_tsne}
+        \includegraphics[width=0.26\linewidth]{swav_tsne.png}
+        \label{swav_tsne}
     }
-    \caption{验证集数据经特征提取的 T-SNE 可视化：(a) SimSiam 的 T-SNE 分布图；(b) SimCLR 的 T-SNE 分布图；(c) BYOL 的 T-SNE 分布图；(d) CNN 的 T-SNE 分布图；(e) SVM 的 T-SNE 分布图}
+    \caption{CWRU数据集验证集数据经特征提取的 T-SNE 可视化：(a) SimSiam；(b) SimCLR；(c) BYOL；(d) MoCo；(e) SwAV；(f) SimSiam + AutoAugment；(g) SimCLR + AutoAugment；(h) BYOL + AutoAugment；(i) MoCo + AutoAugment；(j) SwAV + AutoAugment}
     \label{tsne_of_all_models}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+    % 第一行：SimSiam、SimCLR、BYOL(before)
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{simsiam_before.png}
+        \label{simsiam_before_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{simclr_before.png}
+        \label{simclr_before_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{byol_before.png}
+        \label{byol_before_tsne}
+    }
+    \\
+    % 第二行：MoCo、SwAV(before)
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{moco_before.png}
+        \label{moco_before_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{swav_before.png}
+        \label{swav_before_tsne}
+    }
+    \\
+    % 第三行：SimSiam、SimCLR、BYOL(after)
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{simsiam_after.png}
+        \label{simsiam_after_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{simclr_after.png}
+        \label{simclr_after_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{byol_after.png}
+        \label{byol_after_tsne}
+    }
+    \\
+    % 第四行：MoCo、SwAV(after)
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{moco_after.png}
+        \label{moco_after_tsne}
+    }
+    \subfloat[]{
+        \includegraphics[width=0.26\linewidth]{swav_after.png}
+        \label{swav_after_tsne}
+    }
+    \caption{PU数据集验证集数据经特征提取的 T-SNE 可视化：(a) SimSiam；(b) SimCLR；(c) BYOL；(d) MoCo；(e) SwAV；(f) SimSiam + AutoAugment；(g) SimCLR + AutoAugment；(h) BYOL + AutoAugment；(i) MoCo + AutoAugment；(j) SwAV + AutoAugment}
+    \label{tsne_of_all_models_pu}
+\end{figure}
+
+此外，t-SNE 图也揭示了不同模型对 AutoAugment 敏感性的差异。SimSiam 和 SimCLR 的表现改进较为显著，而 MoCo 和 SwAV 的提升幅度相对有限，表明不同自监督策略对数据增强方法的依赖性不尽相同。这为后续研究提供了进一步优化方向，例如可结合半监督学习思想合理地在微调过程中运用无标签数据的信息，以及决策面调整算法调整决策面因长尾分布的偏差，以进一步提升模型在不平衡场景下的判别性能。
+
+综上所述，t-SNE 可视化不仅从直观角度验证了 AutoAugment 在特征学习阶段的有效性，也揭示了不同模型在不同数据条件下的适应能力与局限性。这些发现将在后续章节中作为进一步探讨模型增强策略与长尾学习方法的重要基础。
 \FloatBarrier  % 阻止后续浮动体越过这条线
+
+\subsection{自适应数据增强策略迁移实验结果}
+表 \ref{tab:autoaugment_transfer_estimation} 展示了将某一对比学习方法中学到的自适应数据增强策略迁移至其他方法时的分类准确率表现。其中，对角线上的数值表示各方法在使用自身策略时的最优性能，非对角线则反映该方法的策略在其他目标模型中的迁移效果。
+
+从整体趋势来看，各方法在使用自身学习到的增强策略时性能最佳，验证了这些策略已高度贴合其原生训练范式，具有较强的内在适配性。例如，SimCLR 和 MoCo v2 分别在使用自身策略时达到了 93.98\% 和 92.81\% 的准确率，居各自行列之首。与此同时，不同增强策略的迁移性能表现出显著差异。SimSiam 策略在迁移至 SimCLR 和 MoCo v2 后的准确率分别为 92.22\% 和 92.31\%，表现相对稳定，说明该策略具有一定的泛化能力。同样，SimCLR 所学策略也展现出较强的迁移适应性，迁移到 SimSiam 时准确率达到 92.87\%，几乎接近 SimSiam 原始策略的最优水平(92.08\%)，表明 SimCLR 学到的增强规则在不同结构中依然有效。相比之下，MoCo v2 策略在除 SwAV 外的模型中准确率表现略逊一筹，SwAV 上仍能保持 92.43\% 的较好迁移性能。SwAV 策略在大多数目标模型中迁移表现均维持在 91\% 以上，整体稳定。
+
+值得注意的是，BYOL 所学策略的迁移能力显著不足。无论迁移至 SimCLR、MoCo v2 还是 SwAV，其准确率均低于 90\%，且自身性能(89.04\%)也是所有方法中最低。这可能与 BYOL 所采用的无负样本、非对称结构等训练机制有关，其优化目标对数据扰动具有更高敏感性，从而限制了所学增强策略在其他结构中的适用性。
+
+综上所述，SimCLR 和 SimSiam 的增强策略表现出更强的通用性和重用价值，在不同对比学习框架中迁移表现稳定甚至接近最优水平。而 BYOL 的策略迁移效果普遍不佳，表明其增强方法具有更强的模型结构依赖性。这一现象说明，在对比学习框架中学到的部分数据增强策略不仅服务于特定模型的优化目标，也可能隐含对数据分布的更普适性理解，为构建可迁移、模块化的数据增强方案提供了实验支持。
+
+
+\begin{table}[h]
+    \centering
+    \caption{CWRU数据集不同对比学习方法的自适应数据增强策略迁移效果准确率}
+    \renewcommand\arraystretch{1.3}
+    \begin{tabular}{lccccc}
+        \toprule
+        源策略 $\rightarrow$ 目标模型 & SimSiam & SimCLR & BYOL & MoCo v2 & SwAV \\
+        \midrule
+        SimSiam    & \textbf{92.08\%} & 92.22\% & 91.91\% & 92.31\% & 92.13\% \\
+        SimCLR     & 92.87\% & \textbf{93.98\%} & 91.97\% & 92.43\% & 91.93\% \\
+        BYOL       & 89.92\% & 89.53\% & \textbf{89.04\%} & 89.62\% & 90.12\% \\
+        MoCo v2    & 91.23\% & 91.63\% & 90.88\% & \textbf{92.81\%} & 92.43\% \\
+        SwAV       & 90.83\% & 92.03\% & 90.72\% & 91.92\% & \textbf{92.60\%} \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:autoaugment_transfer_estimation}
+\end{table}
+
 \subsection{消融实验}
-本小节基于CWRU数据集对SimSiam网络的停止梯度模块、预测器模块和数据增强模块的作用进行了实验分析，并对无标签数据集规模、Batch Size等训练关键参数进行了实验。
+本小节基于CWRU数据集对数据增强模块各个子策略的作用进行了实验分析。以下通过实验分析表~\ref{tab:augmentation_descriptions}中的数据增强子策略对模型性能的影响。图~\ref{train_process_da_discuss}显示了移除单个子策略后SimSiam模型训练过程中的损失函数及特征标准差。表\ref{tb:da_discuss_results}移除不同数据增强子策略的准确率性能变化。以下分析了不同数据增强方法对模型性能的影响。具体而言，讨论了以下几种增强技术：缩放、块打乱和掩码、高斯噪声和相位扰动、绝对值以及竖直翻转和水平翻转。
 
-\textbf{停止梯度和预测期模块}
-
-图\ref{train_process_simsiam_discuss}展示了“使用停止梯度(Stop-Grad)”与“不使用停止梯度”在CWRU数据集上的比较。架构和所有超参数保持不变，唯一的区别是是否使用停止梯度或预测器。
-图\ref{train_process_simsiam_discuss:loss}显示了训练损失。如果不使用停止梯度，优化器可能会迅速找到一个退化解，并使损失函数达到最小值\(-1\)，但这通常并不是一个有效的解，因为模型可能会过拟合或陷入局部最优解。为了证明这种退化是由坍缩引起的，以下研究了 \(\ell_2\) 归一化输出 \( z / \|z\|_2 \) 的标准差。如果输出坍缩到一个常数向量，则所有样本的标准差在每个通道上应该为零，这可以从图\ref{train_process_da_discuss:std}中的蓝色或绿色曲线中观察到。
-作为对比，如果输出 \( z \) 具有零均值各向同性高斯分布， \( \frac{z}{\|z\|_2} \) 的标准差为 \( \frac{1}{\sqrt{d}} \)，从图\ref{train_process_da_discuss:std}的红色曲线可以观察到。
-
-图\ref{train_process_simsiam_discuss:std}的红色曲线显示，使用停止梯度时，标准差接近 \( \frac{1}{\sqrt{d}} \)。这表明输出没有坍缩，而是分散在单位超球面上。
-图\ref{train_process_simsiam_discuss:acc}绘制了KMeans聚类的验证准确率。KMeans聚类可以作为进展的监控工具。使用停止梯度时，监控显示出准确率稳步提高。
-图\ref{train_process_simsiam_discuss}的绿色曲线显示模型在移除预测器(Predictor)后的表现，可以看出移除预测器后发生了与移除Stop-Grad类似的坍塌。事实上，如果使用对称损失(式(\ref{eq:cos_loss}))，这一现象是可以预期的。现在的损失函数是
-\begin{equation}
-    \frac{1}{2}D(z_1, \text{stopgrad}(z_2)) + \frac{1}{2}D(z_2, \text{stopgrad}(z_1)).
-\end{equation}
-其梯度的方向与 $D(z_1, z_2)$ 的梯度相同，只不过幅度被缩放了 $\frac{1}{2}$。在这种情况下，移除Stop-Grad相当于将损失函数缩放为$\frac{1}{2}$。这一调整导致了模型的崩溃(见图\ref{train_process_simsiam_discuss})。图\ref{tsne_simsiam_discuss}进一步可视化了该崩溃对特征提取的影响：在移除Stop-Grad或预测器后，特征空间中的大量样本交叉重叠，导致其变得难以区分。
-表\ref{simsiam_vs_simsiamwosg_wopred}也显示了移除Stop-Grad或预测器后的巨大性能损失。实验表明，Stop-Grad模块对防止模型塌陷起到至关重要的作用，当移除该模块后，通过观察最小可能的损失值以及模型输出的常数性(标准差)，可以发现这种塌陷现象。塌陷解的存在表明，仅通过架构设计(如预测器、BN、$\ell_{2}$-范数)来防止塌陷是不充分的。
-
-\begin{figure}
-    \centering
-    \subfloat[]{
-        \includegraphics[width=0.45\linewidth]{loss.png}
-        \label{train_process_simsiam_discuss:loss}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.45\linewidth]{std.png}
-        \label{train_process_simsiam_discuss:std}
-    }\\
-    \subfloat[]{
-        \includegraphics[width=0.45\linewidth]{acc.png}
-        \label{train_process_simsiam_discuss:acc}
-    }
-    \caption{SimSiam，SimSiam(无Stop-Grad模块)与SimSiam(无预测器模块)的训练过程对比(a) 损失函数；(b) 提取特征的标准差；(c) K-Means聚类准确率}
-    \label{train_process_simsiam_discuss}
-\end{figure}
-
-\begin{figure}
-    \centering
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{simsiam_tsne.png}
-        \label{tsne_simsiam_discuss:simsiam_tsne}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{simsiam_wo_stopgrad_tsne.png}
-        \label{tsne_simsiam_discuss:simsiam_wo_stopgrad_tsne}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{simsiam_wo_pred_tsne.png}
-        \label{tsne_simsiam_discuss:simsiam_wo_pred_tsne}
-    }
-    \caption{SimSiam，SimSiam(无Stop-Grad模块)与SimSiam(无预测器模块)的T-SNE图(a) SimSiam；(b) SimSiam(无Stop-Grad模块)；(c) SimSiam(无预测器模块)}
-    \label{tsne_simsiam_discuss}
-\end{figure}
-
-\begin{table}
-    \caption{SimSiam、SimSiamw/o SG 与 SimSiamw/o Pred 在不同 $\beta$ 值下的准确率/宏平均召回率}
-    \centering
-    \begin{tabular}{cccc}
-    \toprule
-    不平衡因子$\beta$  & SimSiam & SimSiamw/o SG & SimSiamw/o Pred \\
-    \midrule
-    1   & 0.9515  & 0.5338  & 0.5217 \\
-    10  & 0.9402  & 0.4919  & 0.4604 \\
-    50  & 0.9131  & 0.3579  & 0.3892 \\
-    100 & 0.8450  & 0.3412  & 0.3704 \\
-    \midrule
-    平均值 & 0.9125 & 0.4312 & 0.4354\\
-    \bottomrule
-    \end{tabular}
-    \label{simsiam_vs_simsiamwosg_wopred}
-\end{table}
-
-\textbf{数据增强模块}
-
-\ref{sec:CMA-ES_result}小节在限定范围内求得了各个数据增强子策略的最优参数解，并在之后的实验中取得了良好的结果。以下通过实验分析表\ref{CMA-ES_solution}中的8个数据增强子策略对模型性能的影响。图\ref{train_process_da_discuss}显示了移除单个子策略后模型训练过程中的损失函数及特征标准差。表\ref{tb:da_discuss_results}移除不同数据增强子策略的准确率性能变化。以下分析了不同数据增强方法对模型性能的影响。具体而言，讨论了以下几种增强技术：缩放、块打乱和掩码、高斯噪声和相位扰动、绝对值以及竖直翻转和水平翻转。
-
-首先，缩放操作对模型性能的影响最为显著。从表\ref{tb:da_discuss_results}的结果可以看出，移除缩放数据增强后，模型的性能显著下降。振动信号的幅值在时间轴上并非稳定，而是存在波动，这表明信号的特征在不同的尺度和幅度上有变化。引入缩放操作后，模型能够在较小的时间范围内提取出更大幅值范围的特征，从而增强了模型的泛化能力。缺少缩放操作后，模型在不同幅度范围内的鲁棒性降低，导致性能下降。通过增加数据的多样性，缩放操作帮助模型适应了不同的目标尺度和视野范围，进而提升了模型的表现。
-
-其次，块打乱和掩码操作通过局部区域的扰动提高了模型的鲁棒性和对局部特征的提取能力。具体而言，块打乱操作通过打乱图像或信号的局部区域，迫使模型学习局部特征而非依赖全局信息，从而避免模型对局部区域的过度拟合。而掩码操作通过对部分区域进行遮挡，模拟数据中的缺失或遮挡情况，促使模型从有限的信息中恢复或推断出其余部分。这两种数据增强方法在特定场景下，尤其是在存在局部信息缺失或遮挡的情况下，能够有效提升模型的鲁棒性和泛化能力。
-
-高斯噪声和相位扰动主要通过引入轻微的随机噪声或频域变化来增加数据的扰动。尽管这类增强方法能够增加数据的多样性，但生成的样本与原始数据的差异较小，可能无法充分捕捉到数据的多种变异情况，从而限制了模型的泛化能力，未能有效扩展模型的学习能力，因此对模型性能的影响较为有限。
-
-绝对值操作通过将信号中的负值转化为正值，从而扩展了模型所接触到的样本空间。尤其是在处理具有周期性或对称特征的信号时，绝对值能够引入更多样化的训练样本。这种方法帮助模型适应不同的变化模式，并有效防止模型过早陷入“塌陷”现象。此外，绝对值操作增强了模型对信号反转的鲁棒性，有助于提升模型的泛化能力，特别是在面对多变输入数据时。
-
-最后，竖直翻转和水平翻转操作在处理周期性信号时效果较为有限。周期性信号通常具有特定的模式或周期性变化，这些翻转操作改变了信号的空间结构，但对信号的本质特征影响较小。因此，这两种操作对模型性能的提升相对较弱，尤其是在周期性信号的情况下。
-
-综上所述，不同的数据增强方法对模型性能的提升作用不同。缩放操作显著增加了数据的多样性，提升了模型的泛化能力，因此对模型性能的提升最为显著。其次，块打乱和掩码操作在局部信息缺失或遮挡的情况下有助于提高模型的鲁棒性。尽管高斯噪声和相位扰动对模型性能的提升作用较小，但它们仍然能够增加数据的多样性。最后，绝对值操作有效防止了模型的“塌陷”现象，增强了模型对信号反转的鲁棒性，而竖直翻转和水平翻转的作用较为有限，特别是在处理周期性信号时。
-
-\begin{table}
-    \caption{移除不同数据增强子策略在不同 $\beta$ 值下的准确率/宏平均召回率}
-    \centering
-    \begin{tabular}{ccccccccc}
-    \toprule
-    不平衡因子$\beta$  & DA0 & DA1 & DA2 & DA3 & DA4 & DA5 & DA6 & DA7 \\
-    \midrule
-    1   & 0.9279  & 0.9127 & 0.9254 & 0.9204 & 0.9106 & 0.9298 & 0.9394 & 0.9338  \\
-    10  & 0.9258  & 0.9348 & 0.8944 & 0.9298 & 0.8792 & 0.9358 & 0.9333 & 0.9442  \\
-    50  & 0.8563  & 0.8379 & 0.8221 & 0.8467 & 0.7490 & 0.8165 & 0.8573 & 0.8387  \\
-    100 & 0.7935  & 0.8169 & 0.7356 & 0.7194 & 0.7119 & 0.7912 & 0.8333 & 0.7869  \\
-    \midrule
-    平均值 & 0.8759 & 0.8756 & 0.8444 & 0.8541 & 0.8127 & 0.8683 & 0.8908 & 0.8759 \\
-    \midrule
-    相比Baseline & -0.0366 & -0.0369 & -0.0681 & -0.0584 & \textbf{-0.0998} & -0.0442 & -0.0217 & -0.0366 \\
-    \bottomrule
-    \end{tabular}
-    \label{tb:da_discuss_results}
-\end{table}
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \subfloat[]{
         \includegraphics[width=0.45\linewidth]{loss_da.png}
@@ -1133,355 +1323,88 @@ BN 层 \( f_{\text{BN}} \) 用于加速训练过程并减少由于层输入分�
     \label{train_process_da_discuss}
 \end{figure}
 
-\textbf{无标签数据集规模}
+首先，缩放操作对模型性能的影响最为显著。从表\ref{tb:da_discuss_results}的结果可以看出，移除缩放数据增强后，模型的性能显著下降。振动信号的幅值在时间轴上并非稳定，而是存在波动，这表明信号的特征在不同的尺度和幅度上有变化。引入缩放操作后，模型能够在较小的时间范围内提取出更大幅值范围的特征，从而增强了模型的泛化能力。缺少缩放操作后，模型在不同幅度范围内的鲁棒性降低，导致性能下降。通过增加数据的多样性，缩放操作帮助模型适应了不同的目标尺度和视野范围，进而提升了模型的表现。
 
-根据前文的讨论，SimSiam网络的性能可能在很大程度上依赖于编码器在无标签数据上进行自监督预训练的质量，现在讨论无标签样本规模对SimSiam网络性能的影响。在以下实验中，固定了训练集的样本规模为100，并分别设置了无标签数据集的规模为100、200、500、1000和2000。通过对比分析，评估了不同无标签数据集规模下模型的性能表现。从表\ref{tab:fine_tune_acc_ssv_size}和表\ref{tab:fine_tune_acc_ssv_size_pu}中可以看出，随着无标签数据集规模的增大，模型的性能普遍有所提升，尤其是在较大的数据集规模下，准确率的提升更为显著。
-
-在无标签数据集规模为100时，SimSiam网络的准确率相对较低，尤其是在较大$\beta$值配置下(例如，$\beta=100$时，准确率仅为0.7200)。这一现象表明，在较小的数据集规模下，模型的自监督预训练效果不佳，未能有效地学习到足够的特征，从而导致性能较差。
-
-随着无标签数据集规模的增大，模型的准确率逐渐提升(见图\ref{acc_vs_ssvsize})，尤其在数据集规模达到2000时，网络的表现达到最佳，准确率为0.9238。这表明，增加无标签数据集的规模对于模型性能的提升有显著作用。表格中的平均值进一步验证了这一点，随着数据集规模的增加，SimSiam网络的整体表现也逐步提高。在数据集规模为2000时，所有不平衡因子下的平均准确率均较高，凸显了大规模无标签数据集在自监督学习中的重要性。
-
-然而，值得注意的是，当数据规模达到500及以上时，模型性能的提升趋于平稳。通过t-SNE分布图(图\ref{tsne_diff_ssv_size})，可以观察到特征提取质量的改善相对有限，特别是在数据规模从200增加到500时，性能提升最为显著，而从500到2000的提升则较为缓慢。这进一步表明，虽然大规模无标签数据集对模型性能有积极作用，但在一定规模后，性能提升的边际效益逐渐递减。
-
-\begin{table}[h]
+\begin{table}[H]
+    \caption{移除不同数据增强子策略在不同 $\beta$ 值下的准确率/宏平均召回率，以及相比于Baseline的变化(以SimSiam为例)}
     \centering
-    \caption{CWRU数据集不同无标签数据集规模配置下的SimSiam准确率/宏平均召回率}
-    \begin{tabular}{cccccc}
+    \begin{tabular}{ccccccccc}
     \toprule
-    无标签数据集规模 & $\boldsymbol{\beta=1}$ & $\boldsymbol{\beta=10}$ & $\boldsymbol{\beta=50}$ & $\boldsymbol{\beta=100}$ & \textbf{平均值} \\
+    $\beta$  & DA0 & DA1 & DA2 & DA3 & DA4 & DA5 & DA6 & DA7 \\
     \midrule
-    100   & 0.8988 & 0.8942 & 0.8088 & 0.7200 & 0.8305 \\
-    200   & 0.8710 & 0.8642 & 0.7479 & 0.7454 & 0.8071 \\
-    500   & 0.9463 & 0.9577 & 0.8713 & 0.7929 & 0.8921 \\
-    1000  & 0.9513 & 0.9508 & 0.9025 & 0.8746 & 0.9198 \\
-    2000  & 0.9548 & 0.9538 & 0.8946 & 0.8919 & 0.9238 \\
+    1   & 0.9279  & 0.9127 & 0.9254 & 0.9204 & 0.9106 & 0.9298 & 0.9394 & 0.9338  \\
+    10  & 0.9258  & 0.9348 & 0.8944 & 0.9298 & 0.8792 & 0.9358 & 0.9333 & 0.9442  \\
+    50  & 0.8563  & 0.8379 & 0.8221 & 0.8467 & 0.7490 & 0.8165 & 0.8573 & 0.8387  \\
+    100 & 0.7935  & 0.8169 & 0.7356 & 0.7194 & 0.7119 & 0.7912 & 0.8333 & 0.7869  \\
+    \midrule
+    平均值 & 0.8759 & 0.8756 & 0.8444 & 0.8541 & 0.8127 & 0.8683 & 0.8908 & 0.8759 \\
+    \midrule
+    变化 & -0.0366 & -0.0369 & -0.0681 & -0.0584 & \textbf{-0.0998} & -0.0442 & -0.0217 & -0.0366 \\
     \bottomrule
     \end{tabular}
-    \label{tab:fine_tune_acc_ssv_size}
+    \label{tb:da_discuss_results}
 \end{table}
 
-\begin{table}[h]
-    \centering
-    \caption{PU数据集不同无标签数据集规模配置下的SimSiam准确率/宏平均召回率}
-    \begin{tabular}{ccccccc}
-    \toprule
-    无标签数据集规模 & $\boldsymbol{\beta=1}$ & $\boldsymbol{\beta=10}$ & $\boldsymbol{\beta=50}$ & $\boldsymbol{\beta=100}$ & \textbf{平均值} \\
-    \midrule
-    100   & 0.6187  & 0.6221 & 0.5740 & 0.5213 & 0.5840 \\
-    200   & 0.6297  & 0.6351 & 0.5815 & 0.5348 & 0.5953 \\
-    500   & 0.6624  & 0.6704 & 0.6099 & 0.5549 & 0.6244 \\
-    1000  & 0.6659  & 0.6656 & 0.6318 & 0.6103 & 0.6434 \\
-    2000  & 0.6684  & 0.6677 & 0.6253 & 0.6243 & 0.6464 \\
-    \bottomrule
-    \end{tabular}
-    \label{tab:fine_tune_acc_ssv_size_pu}
-\end{table}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{acc_vs_ssvsize.png}
-    \caption{不同无标签数据集规模配置下的SimSiam准确率/宏平均召回率变化图}
-    \label{acc_vs_ssvsize}
-\end{figure}
+其次，块打乱和掩码操作通过局部区域的扰动提高了模型的鲁棒性和对局部特征的提取能力。具体而言，块打乱操作通过打乱图像或信号的局部区域，迫使模型学习局部特征而非依赖全局信息，从而避免模型对局部区域的过度拟合。而掩码操作通过对部分区域进行遮挡，模拟数据中的缺失或遮挡情况，促使模型从有限的信息中恢复或推断出其余部分。这两种数据增强方法在特定场景下，尤其是在存在局部信息缺失或遮挡的情况下，能够有效提升模型的鲁棒性和泛化能力。
+
+高斯噪声和相位扰动主要通过引入轻微的随机噪声或频域变化来增加数据的扰动。尽管这类增强方法能够增加数据的多样性，但生成的样本与原始数据的差异较小，可能无法充分捕捉到数据的多种变异情况，从而限制了模型的泛化能力，未能有效扩展模型的学习能力，因此对模型性能的影响较为有限。
+
+绝对值操作通过将信号中的负值转化为正值，从而扩展了模型所接触到的样本空间。尤其是在处理具有周期性或对称特征的信号时，绝对值能够引入更多样化的训练样本。这种方法帮助模型适应不同的变化模式，并有效防止模型过早陷入“塌陷”现象。此外，绝对值操作增强了模型对信号反转的鲁棒性，有助于提升模型的泛化能力，特别是在面对多变输入数据时。
+
+最后，竖直翻转和水平翻转操作在处理周期性信号时效果较为有限。周期性信号通常具有特定的模式或周期性变化，这些翻转操作改变了信号的空间结构，但对信号的本质特征影响较小。因此，这两种操作对模型性能的提升相对较弱，尤其是在周期性信号的情况下。
 
 
-\begin{figure}[h]
-    \centering
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{tsne_ssv_size_10.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{tsne_ssv_size_20.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{tsne_ssv_size_50.png}
-    }
-    \\
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{tsne_ssv_size_100.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{tsne_ssv_size_150.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.3\linewidth]{tsne_ssv_size_200.png}
-    }
-    
-    \caption{不同无标签数据规模的SimSiam网络输出特征的T-SNE分布图：(a) 数据规模为100；(b) 数据规模为200；(c) 数据规模为500；(d) 数据规模为1000；(e) 数据规模为1500；(f) 数据规模为2000}
-    \label{tsne_diff_ssv_size}
-\end{figure}
+综上所述，不同的数据增强方法对模型性能的提升作用不同。缩放操作显著增加了数据的多样性，提升了模型的泛化能力，因此对模型性能的提升最为显著。其次，块打乱和掩码操作在局部信息缺失或遮挡的情况下有助于提高模型的鲁棒性。尽管高斯噪声和相位扰动对模型性能的提升作用较小，但它们仍然能够增加数据的多样性。最后，绝对值操作有效防止了模型的“塌陷”现象，增强了模型对信号反转的鲁棒性，而竖直翻转和水平翻转的作用较为有限，特别是在处理周期性信号时。
 
-\textbf{Batch Size}
-
-文献\cite{chen2020simple}提到，较大的批大小(下称Batch Size)能够显著提高对比学习模型的性能。在本节中，通过实验探讨了不同Batch Size配置下SimSiam网络的表现。表\ref{tab:batch_size_simsiam}展示了不同Batch Size(16, 32, 64, 128, 256, 512)下，SimSiam网络在不同不平衡因子下的准确率。
-
-对于$\beta=1$和$\beta=10$的情况，SimSiam网络在不同Batch Size下的表现相对稳定，唯一的显著性能下降发生在Batch Size为512且$\beta=1$时。这表明，较大的Batch Size可能对模型的训练稳定性产生负面影响，尤其是在低不平衡因子的配置下，可能导致训练过程中出现不稳定现象。
-
-另一方面，针对$\beta=50$和$\beta=100$的配置，当Batch Size较小(16和32)时，模型的准确率表现出较大的波动。这种波动可能与小Batch Size导致的训练不充分或梯度估计不稳定有关。然而，当Batch Size增大至64及以上时，模型表现趋于稳定，说明较大的Batch Size有助于减小训练过程中波动，特别是在高不平衡因子的情况下。
-
-从t-SNE分布图(图\ref{tsne_simsiam_diff_batch_size})中也可以观察到，当Batch Size≥64时，特征提取的质量保持稳定，各个类别的边界更加清晰；而在Batch Size为16或32时，部分点的分布呈现出交叠现象，表明个别点特征分离度较差。综合来看，SimSiam网络的性能对Batch Size的依赖相对较小，整体表现较为稳定，这进一步证明了在一定范围内，Batch Size的增大能够优化训练过程并稳定模型的性能。
-
-反观 SimCLR 在不同 Batch Size 下的表现(见图 \ref{acc_of_batch_size})，随着 Batch Size 的增大，SimCLR模型的准确率呈现出明显的下降趋势，而SimSiam和BYOL的表现稳定，BYOL的性能在Batch Size为128时达到峰值，且是所有不平衡因子下都为最高性能(见表\ref{tab:batch_size_byol_finetune})。从表\ref{tab:batch_size_simclr_finetune}也可以看到，当Batch Size增大，SimCLR在不同不平衡因子的准确率全线下降。表明较大的 Batch Size 可能导致SimCLR模型学习到的特征质量下降。
-
-此外，通过观察 t-SNE 分布图(见图 \ref{tsne_simclr_diff_batch_size})，进一步验证了这一现象。在较小的 Batch Size 下，特征的分布较为紧凑，且样本间的区分度较高。然而，随着 Batch Size 的增大，特征分布逐渐变得难以区分，特征提取的质量显著下降。据推测，这一变化可能与较大 Batch Size 与样本类别总数之比有关。在 SimCLR 中，同一批次中的样本通常被视为负样本，而当 Batch Size 增大时，同一批次中同类别样本的比例更高，从而导致模型倾向于增大同类样本之间的距离，这与对比学习的目标相悖——即相似样本应该聚集。由此猜测过大的 Batch Size 可能会损害对比学习的训练效果。
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{acc_of_batch_size.png}
-    \caption{不同Batch Size下SimSiam，SimCLR，BYOL的准确率/宏平均召回率变化图}
-    \label{acc_of_batch_size}
-\end{figure}
-
-\begin{table}[h]
-    \centering
-    \caption{不同Batch Size配置下的SimSiam准确率/宏平均召回率}
-    \begin{tabular}{cccccc}
-    \hline
-    \textbf{Batch Size} & \textbf{$\beta = 1$} & \textbf{$\beta = 10$} & \textbf{$\beta = 50$} & \textbf{$\beta = 100$} & \textbf{平均值} \\
-    \hline
-    16   & 0.9554 & 0.9567 & 0.9188 & 0.8798 & 0.9277 \\
-    32   & 0.9492 & 0.9519 & 0.8600 & 0.7967 & 0.8895 \\
-    64   & 0.9513 & 0.9508 & 0.9025 & 0.8746 & 0.9198 \\
-    128  & 0.9433 & 0.9498 & 0.8804 & 0.8521 & 0.9064 \\
-    256  & 0.9508 & 0.9692 & 0.8900 & 0.8131 & 0.9058 \\
-    512  & 0.9258 & 0.9421 & 0.8748 & 0.8435 & 0.8966 \\
-    \hline
-    \end{tabular}
-    \label{tab:batch_size_simsiam}
-\end{table}
-
-\begin{table}[h]
-    \centering
-    \caption{不同Batch Size配置下的SimCLR准确率/宏平均召回率}
-    \begin{tabular}{cccccc}
-    \hline
-    \textbf{Batch Size} & \textbf{$\beta = 1$} & \textbf{$\beta = 10$} & \textbf{$\beta = 50$} & \textbf{$\beta = 100$} & \textbf{平均值} \\
-    \hline
-    16   & 0.9208 & 0.9423 & 0.9133 & 0.8760 & 0.9131 \\
-    32   & 0.9108 & 0.9090 & 0.8556 & 0.8010 & 0.8691 \\
-    64   & 0.8402 & 0.8535 & 0.8323 & 0.7860 & 0.8280 \\
-    128  & 0.7935 & 0.8038 & 0.7388 & 0.7073 & 0.7609 \\
-    256  & 0.7100 & 0.7292 & 0.6229 & 0.5617 & 0.6560 \\
-    512  & 0.7185 & 0.7275 & 0.5940 & 0.5448 & 0.6462 \\
-    \hline
-    \end{tabular}
-    \label{tab:batch_size_simclr_finetune}
-\end{table}
-
-\begin{table}[h]
-    \centering
-    \caption{不同Batch Size配置下的BYOL微调准确率/宏平均召回率}
-    \begin{tabular}{cccccc}
-    \hline
-    \textbf{Batch Size} & \textbf{$\beta = 1$} & \textbf{$\beta = 10$} & \textbf{$\beta = 50$} & \textbf{$\beta = 100$} & \textbf{平均值} \\
-    \hline
-    16   & 0.8977 & 0.8977 & 0.8354 & 0.7881 & 0.8547 \\
-    32   & 0.8904 & 0.8942 & 0.8481 & 0.8112 & 0.8610 \\
-    64   & 0.9200 & 0.9050 & 0.8646 & 0.8029 & 0.8731 \\
-    128  & 0.9392 & 0.9529 & 0.8846 & 0.8712 & 0.9120 \\
-    256  & 0.9248 & 0.9246 & 0.8517 & 0.8644 & 0.8914 \\
-    500  & 0.9267 & 0.9213 & 0.8179 & 0.7946 & 0.8651 \\
-    \hline
-    \end{tabular}
-    \label{tab:batch_size_byol_finetune}
-\end{table}
-\begin{figure}[h]
-    \centering
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simsiam_batch_size_16.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simsiam_batch_size_32.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simsiam_batch_size_64.png}
-    }
-    \\
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simsiam_batch_size_128.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simsiam_batch_size_256.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simsiam_batch_size_512.png}
-    }
-    
-    \caption{不同Batch Size配置下的SimSiam网络输出特征的T-SNE分布图：(a) Batch Size为16；(b) Batch Size为32；(c) Batch Size为64；(d) Batch Size为128；(e) Batch Size为256；(f) Batch Size为512}
-    \label{tsne_simsiam_diff_batch_size}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simclr_batch_size_16.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simclr_batch_size_32.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simclr_batch_size_64.png}
-    }
-    \\
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simclr_batch_size_128.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simclr_batch_size_256.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{simclr_batch_size_512.png}
-    }
-    
-    \caption{不同Batch Size配置下的SimCLR网络输出特征的T-SNE分布图：(a) Batch Size为16；(b) Batch Size为32；(c) Batch Size为64；(d) Batch Size为128；(e) Batch Size为256；(f) Batch Size为512}
-    \label{tsne_simclr_diff_batch_size}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{byol_batch_size_16.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{byol_batch_size_32.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{byol_batch_size_64.png}
-    }
-    \\
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{byol_batch_size_128.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{byol_batch_size_256.png}
-    }
-    \subfloat[]{
-        \includegraphics[width=0.25\linewidth]{byol_batch_size_512.png}
-    }
-    
-    \caption{不同Batch Size配置下的BYOL网络输出特征的T-SNE分布图：(a) Batch Size为16；(b) Batch Size为32；(c) Batch Size为64；(d) Batch Size为128；(e) Batch Size为256；(f) Batch Size为512}
-    \label{tsne_byol_diff_batch_size}
-\end{figure}
-\FloatBarrier  % 阻止后续浮动体越过这条线
-\subsection{准确率、损失函数和特征标准差之间的相关性分析}
-
-准确率、损失函数以及特征标准差是评估机器学习和深度学习的模型性能和学习过程的重要指标。准确率作为衡量模型预测正确性的标准，通常用于反映模型在分类任务中的表现；而损失函数则用来度量模型输出与真实标签之间的差距，指导优化器调整模型参数;特征标准差则能够从一定程度上反映模型“塌陷”的程度，同时反映特征提取的质量。
-
-尽管这些指标分别在不同方面评价模型的表现，但它们之间是否存在内在的相关性，以及这种相关性是否能够提供更深刻的洞察，仍然是值得探讨的问题。准确率与损失函数之间的关系通常较为直观：随着损失函数的减少，模型的预测精度有望提高。然而，特征标准差在此过程中所起的作用可能更加复杂。特征标准差的变化可能在一定程度上影响模型对数据分布的适应能力，进而间接影响最终的准确率。
-
-因此，本节旨在深入探讨准确率、损失函数和特征标准差之间的相关性，通过量化这些指标的关系，揭示它们在模型训练中的互动机制，以便为模型优化和性能提升提供理论依据。通过这一分析，可以更全面地理解训练过程中各项指标之间的相互作用，进而指导实际应用中的模型调整与改进。
-
-\textbf{Loss与Std：}图\ref{correlation_with_loss_std}显示了图\ref{train_process_da_discuss}中的Loss曲线与标准差曲线的皮尔森相关系数(Pearson Correlation)与斯皮尔曼相关系数(Spearman Correlation)。以下是对结果的分析：
-
-在Baseline中，模型包含了所有的数据增强策略，Pearson相关系数为-0.9448，Spearman相关系数为-0.9232。这表明，在包含所有增强策略的情况下，Loss与标准差之间有较强的负相关性。这个相关性表明，随着训练过程中的损失降低，特征的标准差也相应增大，表明模型的提取特征的能力越来越稳定。
-
-Pearson相关系数和Spearman相关系数在许多情况下呈现出相似的趋势，这表明数据增强策略对Loss和标准差的关系影响较为一致。从结果可以看出，不同的增强策略对Loss与标准差的相关性产生了不同的影响。总的来说，删除高斯噪声、相位扰动和缩放等增强策略在影响Loss与标准差的关系时，表现出了较强的负相关性，表明这些操作增加了数据的多样性或扰动，使得模型更容易适应各种尺度和噪声变化。而像竖直翻转和水平翻转等操作对Loss与标准差的影响较小，表明这些操作对于周期性信号的处理可能并没有显著改变数据的基本特征。因此，在设计数据增强策略时，应该根据具体任务的特性选择合适的增强方法，以最大程度提升模型的鲁棒性和泛化能力。
-
-同时，图\ref{correlation_with_loss_std}显示，SimSiam在去除Stop-Grad模块或Predictor模块后，表现出较高的正相关性，尤其是斯皮尔曼相关系数几乎接近1，这表明准确率与损失/标准差之间呈现较强的等级相关性。这意味着去除这些模块后，损失和标准差的变化对模型性能的影响呈现出更加明显的等级趋势。具体来说，去除Stop-Grad模块后，模型的性能与损失、标准差之间的关系变得更加显著，尤其在SimSiam w/o SG中，斯皮尔曼相关系数高达0.9935，接近1，说明这种关联非常强。
-
-对于去除Predictor模块的情况，尽管皮尔森相关系数仍然较高(0.9735)，但斯皮尔曼相关系数较低(0.7907)，这表明去除Predictor模块后，损失和标准差的变化对准确率的影响在等级上的一致性有所减弱。这个变化可能揭示了模型在去除Predictor模块后表现出的一定程度的性能下降，尤其是在捕捉复杂模式时的能力受限。
-
-这个相关性也揭示了模型在去除Stop-Grad模块或Predictor模块后的潜在模型崩塌现象。去除这些模块后，模型的性能变化更加显著，且损失与准确率的关系变得更加直接，暗示着模型在这些模块缺失的情况下，可能缺乏必要的学习能力和稳定性，导致性能严重下降或过拟合。这种分析进一步表明，Stop-Grad模块和Predictor模块在SimSiam模型中的重要性，去除这些模块后可能影响模型的稳定性和泛化能力，进而导致性能的大幅波动和模型崩塌现象。这与前文的实验结论相一致。
-
-
-% \begin{table}
-%     \centering
-%     \caption{不同增强子策略的Loss与Standard Deviation的相关系数}
-%     \begin{tabular}{ccc}
-%         \hline
-%         \textbf{删除的增强子策略/模块变化} & \textbf{Pearson Correlation} & \textbf{Spearman Correlation} \\
-%         \hline
-%         Baseline & -0.9448 & -0.9232 \\
-%         高斯噪声 (DA0)  & -0.9619 & -0.8994 \\
-%         相位扰动 (DA1)  & -0.9169 & -0.9365 \\
-%         块打乱 (DA2)  & -0.9288 & -0.8851 \\
-%         掩码 (DA3)  & -0.8962 & -0.8904 \\
-%         缩放 (DA4)  & -0.9775 & -0.8636 \\
-%         绝对值 (DA5)  & -0.9412 & -0.9064 \\
-%         竖直翻转 (DA6)  & -0.9500 & -0.9060 \\
-%         水平翻转 (DA7)  & -0.8457 & -0.6589 \\
-%         SimSiam w/o SG & 0.8853 & 0.9935 \\
-%         SimSiam w/o Pred & 0.9735 & 0.7907 \\
-%         \hline
-%     \end{tabular}
-%     \label{tb:correlation_with_loss_std}
-% \end{table}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=1.0\linewidth]{da_correlation.png}
-    \caption{不同增强子策略的Loss与Standard Deviation的相关系数}
-    \label{correlation_with_loss_std}
-\end{figure}
-\textbf{准确率与Loss/Std：}表\ref{tab:correlation_with_acc}展示了准确率与损失函数以及标准差之间的相关性分析。具体分析如下：
-
-首先，准确率与损失函数的相关性分析表明，无论是使用皮尔森相关系数(-0.0048)还是斯皮尔曼相关系数(-0.1557)，两者的相关系数都非常接近零，且对应的 p-value 分别为 0.9910 和 0.7128。这些结果表明，准确率与损失函数之间几乎没有线性或等级上的相关性。因此，尽管损失值反映了模型在训练过程中的误差大小，但它与最终的准确率之间并没有明显的联系。
-
-其次，准确率与标准差之间的相关性也表现出较弱的关系。皮尔森相关系数为 0.1972，斯皮尔曼相关系数为 0.2994，二者均较小，说明准确率与标准差之间的线性或等级相关性较弱。同时，p-value 分别为 0.6398 和 0.4713，这意味着这些相关性并不显著。因此，标准差可能未能有效反映模型预测的波动性与准确率之间的关系。
-
-综合来看，表格中的结果表明，准确率与损失以及标准差之间的相关性较低，无论是线性还是非线性关系均不显著。这可能意味着，尽管损失和标准差是训练过程中非常重要的指标，但它们并不能直接有效地预测最终模型的准确率。在实际应用中，可能需要依赖其他更直接的性能指标来评估模型的表现。
-
-\begin{table}[h]
-    \centering
-    \caption{SimSiam准确率与不同指标的相关性分析}
-    \begin{tabular}{cccc}
-    \toprule
-    \textbf{指标} & \textbf{相关系数类型} & \textbf{相关系数} & \textbf{p-value} \\
-    \midrule
-    准确率与Loss     & 皮尔森相关系数   & -0.0048 & 0.9910 \\
-    准确率与Loss     & 斯皮尔曼相关系数 & -0.1557 & 0.7128 \\
-    准确率与标准差      & 皮尔森相关系数   & 0.1972 & 0.6398 \\
-    准确率与标准差      & 斯皮尔曼相关系数 & 0.2994 & 0.4713 \\
-    \bottomrule
-    \end{tabular}
-    \label{tab:correlation_with_acc}
-    \end{table}
 \FloatBarrier  % 阻止后续浮动体越过这条线
 \section{本章小结}
-本章节提出了一种结合简单暹罗孪生网络(SimSiam)与基于 CMA-ES 优化器搜索最优数据增强策略的对比学习自监督预训练模型架构，并在构建的符合帕累托长尾分布的 CWRU 数据集和PU数据集上取得了显著的性能提升。通过实验，系统地分析了模型架构中各模块的作用，并从理论上揭示了 Predictor 模块与 Stop-Grad 模块之间的内在联系。与当前SOTA的方法对比，进一步验证了所提出模型的有效性。此外，通过消融实验，系统探讨了无标签数据集的引入、Batch Size 等关键参数对模型性能的影响。
-然而，研究过程中发现，模型在微调阶段仍然受到由样本分布不平衡引起的偏差影响。因此，下一章将重点针对这一问题提出改进方案，以进一步提升模型的分类性能。
+本章提出了一种自适应数据增强框架，用以优化对比学习中传统的固定增强策略，并将其应用于构建符合帕累托长尾分布的 CWRU 和PU故障诊断数据集上。实验结果表明，该方法在应对长尾分布问题时具有显著的性能提升效果，验证了其在工业场景下的实用性与有效性。
 
-\chapter{半监督学习与边距调整改进的暹罗孪生故障诊断网络}
-上一章展示了自监督学习范式下的二阶段式训练方法(如图\ref{self_supervise_procedure}所示)，其在故障诊断任务的长尾学习场景中显著提升了模型性能。然而，在微调阶段，样本分布的不平衡问题仍对模型的性能产生不利影响，导致分类器的决策边界发生偏移。如图\ref{decision_edge_bias}所示，决策边界向尾部类特征空间发生偏移，使头部类在特征空间中占据更大的体积，从而降低了尾部类的分类准确率。本章节将重点探讨一种结合半监督学习与MARC(Margin Calibration)决策边界调整的微调算法，以缓解长尾分布对微调阶段决策边界偏移的影响，并进一步提升尾部类的识别能力。在处理长尾分布和样本不平衡问题时，决策面调整方法(MARC)提供了一种有效的方式来改善分类器的性能，特别是在少数类别(尾部类别)上。文献\cite{wang2023margin}介绍的决策面调整算法通过引入边距校准方法，调整分类器的决策面，使其更加均衡地处理各个类别的数据。研究发现长尾学习中的边距(Margin)和 logits 存在偏差，通过训练$\omega$ 和 $\beta$两个参数校准这种偏差。然而，该方法未能充分利用无标签数据的信息，限制了其在实际应用中的性能发挥。因此，本文结合半监督学习的思想，对该算法进行改进，以进一步提升模型的泛化能力。
-\begin{figure}[h]
+此外，通过系统性的消融实验，进一步分析了不同增强子策略以及无标签样本规模对模型性能的影响，揭示了自适应增强机制在提升模型泛化能力方面的关键作用。
+
+然而实验也表明，在微调阶段，模型的分类器训练过程仍受到一定程度的长尾分布影响，造成分类偏差，主要源于样本分布不均所带来的训练偏差。为此，下一章将针对该问题，提出一种结合半监督边距调整优化的微调策略，以进一步提升模型在长尾条件下的分类性能。
+
+\chapter{结合半监督边距调整优化的对比学习故障诊断网络框架}
+
+在上一章节中，我们介绍了一种基于自适应数据增强优化的对比学习孪生故障诊断网络框架，在处理故障诊断中的长尾分布问题时表现出较好的性能。然而，在微调阶段，样本分布不均衡仍对模型性能造成一定影响，具体表现为分类器决策边界的偏移(如图~\ref{decision_edge_bias}所示)：决策边界更倾向于尾部类的特征空间，导致头部类在特征空间中占据更大体积，进而影响尾部类的分类准确性。
+
+针对这一问题，本章引入一种结合半监督学习与边距校准的微调策略，以减缓长尾分布对决策边界带来的偏移效应，并提升尾部类的识别能力。该方法基于决策边界调整机制，在微调阶段引入边距参数校准，通过训练可学习参数 $\omega$ 和 $\beta$ 对 logits 偏差进行修正，从而改善模型在类别不均衡场景下的判别能力。
+
+文献\cite{wang2023margin}表明，边距调整在长尾学习任务中能够有效缓解类别不均带来的分类性能下降。然而，该方法未充分利用无标签数据，限制了其泛化能力和适应性。因此，本文在决策边界调整算法基础上引入半监督学习思想，结合伪标签机制和一致性正则化，利用未标记样本辅助模型边界校准，以增强模型在少样本类别下的判别能力。
+
+本章提出的结合式方法旨在进一步优化长尾分布条件下的故障诊断性能，特别是在尾部类样本稀缺的实际工业环境中具有一定的应用潜力。
+
+\section{模型架构}
+
+\subsection{结合半监督边距调整的两阶段式微调策略框架}
+
+在完成对比学习模型的预训练后，如何在有限标注样本条件下充分挖掘未标注数据的潜在信息，是构建高鲁棒性智能诊断系统的关键。针对该问题，本文提出一种结合伪标签机制与边距调节策略的两阶段半监督微调框架(Semi-Marc)，旨在进一步提升模型的判别能力与泛化性能。
+
+该微调框架的整体流程如图~\ref{semi_marc_simsiam}所示，主要包括两个阶段：
+
+在第一阶段，利用经过预训练和初步微调的对比学习模型作为“基分类器”，对无标签样本进行推理并生成伪标签。随后，伪标签样本与原始有标签样本共同组成扩展训练集。在该阶段中，编码器部分保持冻结，仅对分类器进行微调，以获得适应新分布的“半监督分类器”。
+
+在第二阶段，固定“半监督分类器”的全部参数，进一步引入边距校准模块，对分类器输出的 logits 进行后验调整。具体而言，训练两个可学习的标量因子：尺度因子 $\omega$ 用于调节 logits 的幅度，偏置因子 $\beta$ 用于修正各类别间的边界偏差，以提升模型在不平衡分布下的置信度估计和分类能力。
+
+\begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{decision_edge_bias.pdf}
     \caption{由长尾分布带来的决策面偏移示意图}
     \label{decision_edge_bias}
 \end{figure}
-\FloatBarrier  % 阻止后续浮动体越过这条线
 
-\section{模型架构}
-\FloatBarrier  % 阻止后续浮动体越过这条线
-\subsection{半监督学习与边距调整改进的暹罗孪生故障诊断网络整体架构}
-
-针对原有MARC算法不能充分运用无监督样本的信息，本研究在MARC算法中引入半监督学习的思想，优化了上一章的SimSiam架构的微调过程，提出了一种结合两者的 SimSiam 模型架构，称为 基于半监督MARC 微调的 SimSiam 模型(Semi-MARC SimSiam)。该模型通过三阶段的逐步训练和优化，旨在解决长尾分布和样本不平衡问题，并显著提升分类器在尾部类别上的性能。其具体模型训练架构流程如图 \ref{semi_marc_simsiam} 所示。
-该模型架构包括以下四个阶段：
-
-\begin{enumerate}[label={(\arabic*)}]
-    \item \textbf{阶段一(自监督学习)}：  
-    在第一阶段，基于 SimSiam 架构对模型进行预训练。具体而言，利用大量无标签样本和少量有标签的长尾样本，训练一个性能较优的特征提取网络和初步分类器。SimSiam 的自监督特性能够在数据量受限的情况下充分挖掘数据的潜在分布信息，为后续的半监督学习提供高质量的特征表示。
-
-    \item \textbf{阶段二(半监督学习)}：  
-    在第二阶段，基于阶段一训练得到的 SimSiam 模型，使用其生成无标签样本的伪标签(Pseudo Labels)，将伪标签视为无标签数据的“真实标签”。随后，将补充有伪标签的无标签数据与原始有标签数据集相结合，通过最小化标记数据和伪标签数据的损失函数，重新优化分类器的全连接层参数，得到半监督微调后的Semi-SimSiam模型。这一阶段的目标是榨取无标签数据集的信息，扩充原有数据集。
-
-    \item \textbf{阶段三(半监督优化的MARC 决策边界调整)}：  
-    在第三阶段，利用经过半监督学习优化后的分类器及其输出的 logits和经伪标签扩充的数据集，对决策边界进行微调。具体而言，通过训练两个向量参数 $\omega$ 和 $\beta$，分别控制分类器输出的尺度因子和偏置项，调整分类器的决策面，以提升模型在尾部类别上的分类准确率。MARC 的引入有效平衡了模型在头部类别和尾部类别上的性能差异。
-
-    \item \textbf{阶段四(故障诊断)}：  
-    最终，将阶段二训练得到的 Semi-SimSiam 模型与阶段三中学习到的尺度因子 $\omega$ 和偏置项 $\beta$ 相结合，构建完整的故障诊断模型Semi-Marc SimSiam。该模型综合利用自监督特征学习、伪标签生成与决策边界优化三者的优势，对输入样本进行精确分类，从而实现更为稳健且性能均衡的故障诊断。
-\end{enumerate}
-
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=14cm]{semi_marc_simsiam.pdf}
-    \caption{基于半监督学习和 MARC 微调的 SimSiam 模型流程框图}
+    \includegraphics[width=15cm]{semi_marc_simsiam.pdf}
+    \caption{结合半监督边距调整的微调策略流程框图}
     \label{semi_marc_simsiam}
 \end{figure}
 
-整体流程通过结合 SimSiam 的特征提取能力、半监督学习对伪标签的利用，以及 MARC 算法对决策边界的微调，形成了一个多阶段优化框架。该方法在处理长尾分布和样本不平衡问题时，展现出显著的优势，尤其是在提高尾部类别分类准确率方面效果显著。
-\FloatBarrier  % 阻止后续浮动体越过这条线
+该两阶段训练策略在不增加模型结构复杂度的前提下，结合了半监督伪标签扩展与边距校准的优势，有效缓解了长尾分布和标注不足带来的性能瓶颈，为工业场景中的少样本故障诊断任务提供了一种可行的优化路径。
+
 \subsection{半监督学习模型架构}
-本研究提出了一种结合半监督学习与决策边界调整算法的框架，以有效解决长尾分布和样本不平衡问题。受到文献\cite{yang2020rethinking,wang2023margin}的启发，研究借鉴了半监督学习(Semi-Supervised Learning，下称Semi)的经典流程(如图\ref{semi_supervise_procedure}所示)。该流程分为两个阶段：
+本研究提出了一种结合半监督学习与决策边界调整算法的框架，以有效解决长尾分布和样本不平衡问题。受到文献\cite{yang2020rethinking,wang2023margin}的启发，研究借鉴了半监督学习(Semi-Supervised Learning)的经典流程(如图~\ref{semi_supervise_procedure}所示)。该流程分为两个阶段：
 
 在第一阶段，使用原始的不平衡标记数据集 $\mathcal{D}_{L}$ 训练一个初步分类器 $f_{\hat{\theta}}$。随后，在第二阶段，利用该分类器对未标记数据集 $\mathcal{D}_{U}$ 进行推断并生成伪标签 $\hat{y}$。伪标签数据与标记数据结合，通过最小化以下损失函数优化模型：
 \begin{equation} 
@@ -1492,16 +1415,21 @@ Pearson相关系数和Spearman相关系数在许多情况下呈现出相似的�
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=12cm]{semi_supervise_procedure.pdf}
+    \includegraphics[width=10cm]{semi_supervise_procedure.pdf}
     \caption{半监督学习流程图}
     \label{semi_supervise_procedure}
 \end{figure}
-\FloatBarrier  % 阻止后续浮动体越过这条线
+
 \subsection{经半监督优化的决策面调整算法架构}
-与此同时，在处理长尾分布和样本不平衡问题时，决策面调整方法(MARC)提供了一种有效的方式来改善分类器的性能，特别是在少数类别(尾部类别)上。文献\cite{wang2023margin}介绍的决策面调整算法通过引入边距校准方法，调整分类器的决策面，使其更加均衡地处理各个类别的数据。
 
-研究发现长尾学习中的边距(Margin)和 logits 存在偏差。边距在图\ref{marc_illustration}中进行了说明。定义类别 $ j $ 的仿射超平面 $ H_j \in \mathbb{R}^{p-1} $ 为 $ W_j z + b_j = 0 $，即任何落在超平面 $ H_j $ 正侧的表示点可以归类为类别 $ j $。假设 $ z_0 $ 是一个满足 $ W_j z_0 + b_j = 0 $ 的点，即 $ z_0 $ 在超平面 $ H_j $ 上。假设 $ z_1 $ 是特征空间中的任意点。构造从 $ z_0 $ 指向 $ z_1 $ 的向量 $ z_1 - z_0 $，并将其投影到法向量 $ W_j $ 上。投影向量 $ \text{proj}_{W_j}(z_1 - z_0) $ 的长度即是从 $ z_1 $ 到 $ H_j $ 的边距。边距$d_j$的计算如下：
+在处理长尾分布和类别不平衡问题时，决策面调整方法被广泛认为是一种有效手段，能够显著提升模型在尾部类别上的判别能力。文献\citing{wang2023margin}提出了一种基于边距校准的决策面调整方法——MARC(Margin Calibration)，通过显式调整每个类别的决策边距，改善分类器的鲁棒性与公平性。
 
+在长尾学习任务中，模型对不同类别的决策边距(Margin)和logits存在显著偏差。图~\ref{marc_illustration}直观展示了边距的定义。
+设类别 $j$ 的仿射超平面为 $H_j \in \mathbb{R}^{p-1}$，定义为
+\[
+H_j: W_j z + b_j = 0,
+\]
+表示特征 $z$ 落在该超平面正侧时被判定为类别 $j$。令 $z_0$ 为满足 $W_j z_0 + b_j = 0$ 的点(即落在超平面 $H_j$ 上)，任取特征向量 $z_1$，则其到超平面的边距 $d_j$ 计算如下：
 \begin{equation}
     \begin{split}
         d_j &= \left\| \text{proj}_{W_j}(z_1 - z_0) \right\| \\
@@ -1510,315 +1438,373 @@ Pearson相关系数和Spearman相关系数在许多情况下呈现出相似的�
             &= \frac{W_j z_1 + b_j}{\|W_j\|} \quad (\text{由于 } W_j z_0 + b_j = 0)
     \end{split}
 \end{equation}
-其中 $ \| \cdot \| $ 表示 L2 范数。因此，logit $= W_j \cdot z_1 + b_j $ 也可以表示为 $ \|W_j\| d_j $。
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{marc_illustration.pdf}
-    \caption{决策面与决策边界示意图，红色点代表头部类，蓝色点代表尾部类}
-    \label{marc_illustration}
-\end{figure}
+由此，logit $= W_j z_1 + b_j = \|W_j\| d_j$，即logit本质上是边距的加权形式。
 
-MARC算法包括两个关键参数：$\omega$ 和 $\beta$，其中 $\omega$ 是用于调整输出的尺度因子，而 $\beta$ 则是用于调整输出的偏置项。调整后的边距$\hat{d}_j$如下：
+MARC引入两个参数：缩放因子 $\omega$ 与 偏置项 $\beta$，用于对边距 $d_j$ 进行线性变换，得到校准后的边距 $\hat{d}_j$：
 \begin{equation}
     \hat{d}_j = \omega_j \cdot d_j + \beta_j
 \end{equation}
-这两个参数通过最小化类平衡的损失函数(如CB LOSS)来进行优化，从而调整获得适合当前任务的最优决策面。校准后的logits通过下式计算
+
+调整后的logits计算如下：
 \begin{equation}
     \begin{split}
-    logits_{marc} = \| \mathbf{W}_j \| \hat{d}_j &= \| \mathbf{W}_j \| (\omega_j \cdot d_j + \beta_j) \\
-    &= \omega_j \cdot \| \mathbf{W}_j \| d_j + \beta_j \cdot \| \mathbf{W}_j \| \\
-    &= \omega_j \cdot \eta_j + \beta_j \cdot \| \mathbf{W}_j \|,
+        logits_{marc} &= \| W_j \| \cdot \hat{d}_j \\
+                      &= \omega_j \cdot \|W_j\| d_j + \beta_j \cdot \|W_j\| \\
+                      &= \omega_j \cdot \eta_j + \beta_j \cdot \|W_j\|,
     \end{split}
 \end{equation}
-其中$\eta_j$是原始的logits。算法的具体实现步骤参考表\ref{alg:marc}。在MARC伪代码中，$\omega$ 和 $\beta$ 是通过torch.nn.Parameter初始化为可训练的参数，它们分别表示边距的缩放因子和偏置项。使用torch.no\_grad()关键字来避免计算梯度，确保在前向传播时不会影响到梯度计算。接下来，代码通过计算网络的权重范数以及模型在给定输入 $x$ 上的输出结果，来调整输出的决策面，生成校准后的输出 $\text{logit\_after}$。在实际应用中，MARC 算法有助于减小尾部类别的分类误差，尤其是在样本不平衡的情况下，通过有效地调整决策边距来改善模型的泛化能力和分类精度。
+
+其中 $\eta_j = \|W_j\| d_j$ 为原始logit。$\omega_j$ 与 $\beta_j$ 作为可学习参数，通过最小化类别平衡损失(如CB Loss)进行联合优化。
+为进一步提升 MARC 算法在少样本类别上的判别性能，本文引入了半监督伪标签机制。该机制首先利用预训练的主干模型对未标注样本进行推理，并为其分配伪标签。随后，将这些带有高置信度伪标签的无标签样本与原始标注样本集合并，构建联合训练集 $\mathcal{D} = \mathcal{D}_L \cup \mathcal{D}_U$，其中 $\mathcal{D}_L$ 表示人工标注的数据集，$\mathcal{D}_U$ 则为通过模型自动生成标签的无标签样本。在此联合数据集上执行边距校准优化过程，不仅增强了模型对尾部类别的判别能力，也有效缓解了因类别分布不均而导致的决策边界偏移问题。该方法在保持整体训练稳定性的同时，实现了对尾部类别边界的自适应调整，从而进一步提升了 MARC 框架在长尾分布场景中的表现。
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{marc_illustration.png}
+    \caption{决策面与边距示意图：红色为头部类，蓝色为尾部类}
+    \label{marc_illustration}
+\end{figure}
+该策略不仅增强了MARC模型的边界自适应能力，也缓解了类别间的不均衡性，特别是在弱特征或类间语义重叠场景下表现更优。
+
 \begin{table}[h]
     \centering
-    \begin{tabular}{@{}l@{}} % 使用 @{} 去掉默认的左右边距，l 表示左对齐
+    {\CJKfamily{song}
+    \begin{tabular}{@{}l@{}}
     \toprule
-    \multicolumn{1}{@{}l@{}}{\textbf{MARC伪代码(用Pytorch描述)}} \\ % 左对齐文本
+    \textbf{MARC伪代码(使用PyTorch表示)} \\
     \midrule
-    \begin{lstlisting}[basicstyle=\ttfamily,frame=none]
-1: 初始化边界校准方法：
+    \begin{lstlisting}[basicstyle=\fontspec{Times New Roman}, frame=none]
+1: 初始化边距校准参数：
     omega = torch.nn.Parameter(torch.ones(1, num_classes))
     beta = torch.nn.Parameter(torch.zeros(1, num_classes))
 
-2: 输入：训练数据 x(由标签数据集D_L和带伪标签的无标签数据集D_U组成)，
-   标准的预训练神经网络模型。
+2: 输入：联合训练数据 x 
+   (包括带标签数据 D_L 和伪标签数据 D_U)
 
 3: with torch.no_grad():
 4:     w_norm = torch.norm(model.fc.weight, dim=1)
 5:     logit_before = model(x)
 6:     logit_after = omega * logit_before + beta * w_norm
-7: 计算损失并更新参数 omega 和 beta。
+
+7: 计算损失(如CB Loss)，优化 omega 和 beta。
     \end{lstlisting} \\
-    \hline
+    \bottomrule
     \end{tabular}
-    \caption{MARC 算法的实现伪代码}
+    }
+    \caption{{\CJKfamily{song}MARC 算法实现伪代码}}
     \label{alg:marc}
 \end{table}
-\FloatBarrier  % 阻止后续浮动体越过这条线
+
+
 \subsection{实验设置}
-\textbf{模型配置}：阶段一SimSiam的网络设置与上一章相同。在决策面调整过程中，将 $\omega$ 初始化为大小为 $1 \times \text{num\_classes}$ 的全 $1$ 向量，而 $\beta$ 则初始化为相同大小的全 $0$ 向量。
+\textbf{模型配置}：对比学习的网络结构参数设置与上一章相同。在决策面调整过程中，将 $\omega$ 初始化为大小为 $1 \times \text{num\_classes}$ 的全 $1$ 向量，而 $\beta$ 则初始化为相同大小的全 $0$ 向量。
 
 \textbf{优化器}：本研究使用 SGD 优化器训练模型。网络参数通过公式 (\ref{eq:SGD}) 更新。学习率初始设置为 \( 0.05 \times \frac{\text{BatchSize}}{256} \)，学习率采用余弦衰减调度。余弦衰减调度的公式如式(\ref{eq:cos_decay})所示。
 
-\textbf{损失函数}：阶段一SimSiam对比学习使用的损失函数如上一章所介绍。阶段二、阶段三的损失函数为式(\ref{eq:semi_loss})，其中$\mathcal{L}$为交叉熵损失函数式(\ref{eq:cross_entropy})，$\omega$设为0.9。
+\textbf{损失函数}：损失函数为式(\ref{eq:semi_loss})，其中$\mathcal{L}$为交叉熵损失函数式(\ref{eq:cross_entropy})，$\omega$设为0.9。
 
 \textbf{数据细节}：
 无标签数据集的规模为类别数*100，有标签数据集为不同不平衡因子构造帕累托分布的数据，测试集为均匀分布。每个样本包含 1024 个数据点。每个阶段分别训练150个周期。
 在整个训练过程中，每个输入模型的 mini-batch 大小设定为 64。
 \FloatBarrier  % 阻止后续浮动体越过这条线
+
 \section{实验与分析}
 
-\subsection{在 CWRU 数据集和 PU 数据集上的实验结果}
-本研究基于CWRU数据集和PU数据集进行实验，数据集的构造方式与\ref{simsiam_cwru_results}节描述一致。每个训练阶段均运行150个周期。不同不平衡因子条件下的分类准确率结果如表\ref{simsiam_semi_results}所示。图\ref{fig:semi_marc_class_acc_for_beta}展示了在不同$\beta$值下，采用Semi-Marc微调方法后，各类别准确率在三个训练阶段(SimSiam、Semi、Marc)中的变化趋势。值得注意的是，Class 0为头部类别，Class 9为尾部类别，各类别样本数量呈递减趋势。
+\subsection{在 CWRU 数据集和PU数据集上的实验结果}
+表 \ref{tab:autoaugment_semimarc_accuracy_estimate} 与表 \ref{tab:autoaugment_semimarc_accuracy_estimate_pu} 分别汇报了在 CWRU 与 PU 数据集上，不同对比学习方法在引入 AutoAugment 增强策略基础上，进一步结合本文提出的 Semi-MARC 框架后的分类准确率表现及其性能增益情况。实验结果表明，Semi-MARC 能够在多种主流对比学习模型中显著提升分类性能，验证了其在无标签数据利用与决策边界优化方面的有效性与通用性。
 
-表 \ref{simsiam_semi_results} 与表 \ref{simsiam_semi_results_pu} 分别展示了不同模型在 CWRU 与 PU 数据集上，针对不同不平衡因子 $\beta$ 所获得的准确率与宏平均召回率。从整体结果来看，本文提出的 Semi-Marc SimSiam 模型在两个数据集上均取得了最优的平均表现，分别达到 0.9454 和 0.6614，显著优于基础模型 SimSiam 及其两种单独增强版本。这表明，结合半监督机制与 MARC 特征增强策略能够有效缓解样本不平衡问题所带来的性能退化，提升模型的鲁棒性与泛化能力。
+在 CWRU 数据集上，SimSiam 与 SimCLR 在引入 Semi-MARC 后获得了最显著的性能提升，准确率分别从 92.08\% 和 93.98\% 提升至 94.02\% 和 95.51\%，对应提升幅度分别为 1.94\% 与 1.53\%。此外，MoCo v2 与 SwAV 亦分别获得了 1.32\% 与 1.28\% 的性能增益，表明该方法适用于不同对比学习范式，包括聚类式与字典更新式结构。BYOL 的提升幅度相对较小，仅为 0.80\%，可能归因于其高度依赖正样本一致性的训练策略，使得伪标签的噪声对模型性能的影响更为敏感。
 
-在 CWRU 数据集中，随着不平衡因子逐渐增大，所有模型的性能均呈现一定程度下降，其中基础的 SimSiam 模型在 $\beta=100$ 时准确率降至 0.8450，而 Semi-Marc SimSiam 在相同条件下依然维持在 0.9142，表现出对极端不平衡场景更强的适应能力。与之相对，PU 数据集整体难度更大，所有模型的准确率普遍低于 CWRU，反映出该数据集的复杂性和挑战性。然而，即使在此背景下，Semi-Marc SimSiam 依然在所有 $\beta$ 设置中保持领先，且波动幅度较小，说明其具有更好的稳定性与迁移能力。
+在 PU 数据集上，各模型整体亦呈现出一致的性能提升趋势，但相较于 CWRU 数据集，提升幅度普遍略低。其中，MoCo v2 表现最为优异，准确率提升达 1.69\%；BYOL 在该数据集上相较 CWRU 表现更为稳定，准确率提升为 1.08\%。SimSiam 与 SimCLR 分别提升了 0.77\% 与 0.62\%，SwAV 的增幅最小，为 0.31\%。这些结果进一步验证了 Semi-MARC 框架在不同工业场景中的适应性与稳健性。
 
-进一步对比可以发现，单独引入半监督策略或 MARC 技术虽能在一定程度上改善模型性能，但其提升幅度相较联合方法较为有限，尤其是在高度不平衡情形下难以维持较高的准确率。这说明两者在机制上具有互补性：半监督策略能够引导模型更充分地利用未标记样本以增强泛化能力，而 MARC 则能通过特征层的增强提升模型对少数类的区分能力，从而在联合使用时实现协同增益，显著提升分类性能。
+综上，Semi-MARC 框架在 CWRU 与 PU 两个具代表性的轴承故障数据集上均展现出良好的迁移能力与增强效果，不仅有效挖掘了无标签样本的潜在信息，还在不同类型的对比学习模型中实现了稳定的性能提升，体现出其在智能故障诊断任务中的广泛应用前景。
 
-从图\ref{simsiam_semi_results}可以清晰地观察到，尾部类别Class 8在经过Semi-Marc微调后，其分类准确率显著提升。此外，除了Class 8和Class 5外，其余类别的分类准确率不仅未下降，反而有所提升。具体变化趋势见图\ref{fig:semi_marc_class_acc_for_beta10}、图\ref{fig:semi_marc_class_acc_for_beta50}和图\ref{fig:semi_marc_class_acc_for_beta100}，均验证了Semi-Marc微调方法在提升尾部类分类性能上的有效性，同时对头部类和中部类的分类性能也具有积极影响。
-
+为实现更全面的性能评估，进一步考察在无数据增强条件下 Semi-MARC 的独立效果，以下介绍在未使用 AutoAugment 的情况下，仅引入 Semi-MARC 微调策略已能带来显著的准确率提升。
 \begin{table}[h]
-    \caption{CWRU数据集SimSiam 与 Semi-Marc SimSiam 在不同 $\beta$ 值下的准确率/宏平均召回率}
     \centering
-    \begin{tabular}{cccccc}
-    \toprule
-    不平衡因子 $\beta$  & SimSiam & Semi SimSiam & Marc SimSiam & Semi-Marc SimSiam \\
-    \midrule
-    1   & 0.9515 & 0.9685 & 0.94896 & 0.9781 \\
-    10  & 0.9402 & 0.9606 & 0.9575  & 0.9623 \\
-    50  & 0.9131 & 0.9248 & 0.91687 & 0.9271 \\
-    100 & 0.8450 & 0.9090 & 0.87896 & 0.9142 \\
-    \midrule
-    \textbf{平均值} & 0.9125 & 0.9407 & 0.9256 & \textbf{0.9454} \\
-    \bottomrule
+    \caption{CWRU数据集各类对比学习方法加入 AutoAugment 与 Semi-MARC 后的准确率}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{lccc}
+        \toprule
+        方法 & 加入 AutoAugment 后 & 加入 AutoAugment 与 Semi-MARC 后 & 提升幅度 \\
+        \midrule
+        SimSiam & 92.08\% & 94.02\% & +1.94\% \\
+        SimCLR  & 93.98\% & 95.51\% & +1.53\% \\
+        BYOL    & 89.04\% & 89.84\% & +0.80\% \\
+        MoCo v2 & 92.81\% & 94.13\% & +1.32\% \\
+        SwAV    & 92.60\% & 93.88\% & +1.28\% \\
+        \bottomrule
     \end{tabular}
-    \label{simsiam_semi_results}
+    \label{tab:autoaugment_semimarc_accuracy_estimate}
 \end{table}
 
 \begin{table}[h]
-    \caption{PU数据集SimSiam 与 Semi-Marc SimSiam 在不同 $\beta$ 值下的准确率/宏平均召回率}
     \centering
-    \begin{tabular}{cccccc}
-    \toprule
-    不平衡因子 $\beta$  & SimSiam & Semi SimSiam & Marc SimSiam & Semi-Marc SimSiam \\
-    \midrule
-    1   & 0.6661 & 0.6801 & 0.6635 & 0.6821 \\
-    10  & 0.6581 & 0.6764 & 0.6696 & 0.6747 \\
-    50  & 0.6392 & 0.6474 & 0.6408 & 0.6499 \\
-    100 & 0.5915 & 0.6363 & 0.6152 & 0.6390 \\
-    \midrule
-    \textbf{平均值} & 0.6387 & 0.6601 & 0.6473 & \textbf{0.6614} \\
-    \bottomrule
+    \caption{PU数据集各类对比学习方法加入 AutoAugment 与 Semi-MARC 后的准确率}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{lccc}
+        \toprule
+        方法 & 加入 AutoAugment 后 & 加入 AutoAugment 与 Semi-MARC 后 & 提升幅度 \\
+        \midrule
+        SimSiam & 82.15\% & 82.92\% & +0.77\% \\
+        SimCLR  & 82.00\% & 82.62\% & +0.62\% \\
+        BYOL    & 75.54\% & 76.62\% & +1.08\% \\
+        MoCo v2 & 79.38\% & 81.07\% & +1.69\% \\
+        SwAV    & 76.62\% & 76.93\% & +0.31\% \\
+        \bottomrule
     \end{tabular}
-    \label{simsiam_semi_results_pu}
+    \label{tab:autoaugment_semimarc_accuracy_estimate_pu}
 \end{table}
 
+为系统评估 Semi-MARC 微调策略在不同数据场景中的通用性与有效性，本文在未引入 AutoAugment 数据增强的前提下，分别在 CWRU 与 PU 两个数据集上考察了各类对比学习方法及传统卷积神经网络在引入 Semi-MARC 后的分类性能变化。如表 \ref{tab:semimarc_improvement} 和表 \ref{tab:semimarc_improvement_pu} 所示，所有模型在两个数据集上均实现了不同程度的准确率提升，进一步验证了该策略在优化模型决策边界和提升泛化能力方面的有效性与稳定性。
+
+从整体趋势来看，SimCLR 与 SimSiam 在两个数据集上均展现出较为显著的性能提升。在 CWRU 数据集上，准确率分别提高了 3.19 个百分点与 2.51 个百分点；在 PU 数据集上，提升幅度也分别达到 2.32 个百分点与 1.89 个百分点，表明该微调策略在以对比目标进行特征表征学习的模型中具备良好的适应性和增强作用。MoCo v2 与 SwAV 同样表现出一致的提升趋势，分别在 CWRU 数据集上提升了 1.70 个百分点与 1.40 个百分点，在 PU 数据集上提升了 1.69 个百分点与 1.24 个百分点，验证了 Semi-MARC 对包含聚类机制或字典更新结构的模型亦具备良好的适配能力。
+
+值得强调的是，传统卷积神经网络在 PU 数据集上的准确率提升达到 2.42 个百分点，明显高于其在 CWRU 数据集上仅为 0.24 个百分点的表现，说明在样本分布更复杂、特征区分性较弱的情形下，Semi-MARC 能更有效地提升传统模型的判别性能。此外，BYOL 方法在两个数据集上亦取得了相对稳定的性能提升，分别为 0.73 个百分点与 1.32 个百分点，虽然整体幅度略低，但仍表明该策略对伪标签质量和边界调整机制具有一定的积极作用。
+
+\begin{table}[h]
+    \centering
+    \caption{CWRU数据集各类对比学习方法加入 Semi-MARC 前后的准确率}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{lccc}
+        \toprule
+        方法 & 原始准确率 & 加入 Semi-MARC 后准确率 & 涨幅 \\
+        \midrule
+        SimSiam & 87.29\% & 89.80\% & \textbf{+2.51\%} \\
+        SimCLR  & 88.13\% & 91.32\% & \textbf{+3.19\%} \\
+        BYOL    & 88.13\% & 88.86\% & +0.73\% \\
+        MoCo v2 & 89.69\% & 91.39\% & \textbf{+1.70\%} \\
+        SwAV    & 90.21\% & 91.61\% & +1.40\% \\
+        CNN     & 89.79\% & 90.03\% & +0.24\% \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:semimarc_improvement}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \caption{PU数据集各类对比学习方法加入 Semi-MARC 前后的准确率}
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{lccc}
+        \toprule
+        方法 & 原始准确率 & 加入 Semi-MARC 后准确率 & 涨幅 \\
+        \midrule
+        SimSiam & 78.62\% & 80.51\% & +1.89\% \\
+        SimCLR  & 77.85\% & 80.17\% & +2.32\% \\
+        BYOL    & 73.54\% & 74.86\% & +1.32\% \\
+        MoCo v2 & 79.15\% & 80.84\% & +1.69\% \\
+        SwAV    & 76.00\% & 77.24\% & +1.24\% \\
+        CNN     & 62.73\% & 65.15\% & +2.42\% \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:semimarc_improvement_pu}
+\end{table}
+
+
+综上，Semi-MARC 微调策略不仅适用于多种对比学习框架，在两个轴承故障数据集上均能带来稳定的性能提升，特别是在数据标签有限或不平衡的环境下，具有较强的实际应用价值。
+
+\subsection{在长尾分布的 CWRU 数据集和PU数据集上的实验结果}
+表~\ref{tab:longtail_semimarc_comparison} 和表~\ref{tab:longtail_semimarc_comparison_pu} 分别总结了在 CWRU 和 PU 两个数据集上，不同长尾不平衡因子 $\beta$ 条件下，各主流对比学习方法在引入 Semi-MARC 策略前后的分类准确率变化。其中，$\beta$ 等于 1 时，数据集样本分布接近均匀，各类别样本数量较为均衡；随着 $\beta$ 的增大，数据分布逐渐演变为典型的长尾形态，尾部类别的样本数量明显减少，分类任务的难度随之提升。
+
+在均匀分布条件下，Semi-MARC 即展现出良好的性能提升效果。例如在 CWRU 数据集上，SimSiam 准确率由 92.08\% 提升至 94.02\%，涨幅达到 1.94\%。这一结果表明，即使数据样本分布较为均衡，Semi-MARC 通过伪标签生成和边界调节机制，依然能够有效挖掘数据潜力，增强模型的判别能力和泛化性能。SimCLR、MoCo v2 与 SwAV 等方法也均表现出不同程度的性能提升，验证了该策略的通用性。
+
+随着 $\beta$ 的持续增大，代表数据分布逐步偏向长尾，尾部类别样本数量显著减少，模型面临更为严峻的少数类学习挑战。此时，Semi-MARC 的性能增益更加明显，尤其在极端长尾条件下，SimSiam 准确率提升高达 3.85\%，SimCLR 也提升近 3\%，BYOL 在该阶段的提升达到 2.02\%。这充分体现了 Semi-MARC 对尾部类别识别和表征能力的显著促进作用，能够有效缓解长尾数据导致的类别不平衡问题。
+
+值得关注的是，MoCo v2 与 SwAV 在中等不平衡条件下取得了最大性能提升。MoCo v2 准确率从 82.91\% 上升到 90.07\%，涨幅达到 7.16\%；SwAV 也有 6.75\% 的显著提升，表明 Semi-MARC 与基于字典和聚类机制的方法存在良好协同效应，显著改善尾部类别的表示能力。
+
+BYOL 的表现呈现出一定的阶段性特征。在均衡及轻度不平衡条件时，提升幅度较小，分别为 0.80\% 和 0.71\%，但在中度和严重不平衡条件下，提升分别达到 3.45\% 和 2.02\%，显示其在尾部类别样本稀缺时更依赖 Semi-MARC 所带来的边界调节机制，以提升少数类的学习能力。
+
+SimCLR 的性能提升在所有 $\beta$ 条件下均维持在 1.24\% 至 2.98\% 之间，表现较为稳定。SimSiam 虽然在均衡及轻度不平衡条件下表现优异，但在中度不平衡时提升幅度有所下降至 1.42\%，表明其对尾部类别的建模能力存在一定局限，但在极端条件下仍具有较强恢复能力。
+
+PU 数据集上的实验结果与 CWRU 数据集表现高度一致，验证了 Semi-MARC 在不同数据分布和应用场景下的通用性和有效性。均衡分布下，SimSiam 准确率提升 1.89\%，SimCLR 和 BYOL 也分别提升 2.32\% 和 1.32\%。随着 $\beta$ 增大至 50，SwAV 和 SimSiam 的提升分别达到 3.54\% 和 3.42\%，表明在严重长尾分布中，Semi-MARC 对尾部类别的表征提升尤为显著。即使在极端长尾条件下，所有方法依然保持稳定的提升幅度，表现出良好的鲁棒性。
+
+综上所述，Semi-MARC 作为一种通用且高效的半监督微调策略，在多种主流对比学习框架如 SimSiam、SimCLR、BYOL、MoCo v2 与 SwAV 下均能显著提升故障诊断准确率。其在处理长尾分布数据时表现尤为突出，能够有效缓解尾部类别样本稀缺所带来的识别困难，展现出优异的稳定性和适应能力，为工业故障诊断领域中长尾不平衡问题提供了切实可行的解决方案。
+
+在整体准确率提升的基础上，为了更深入地理解 Semi-MARC 在不同类别，尤其是尾部少数类上的表现，我们进一步分析了长尾分布数据集上各类别的分类准确率变化情况。通过对比各类别的识别效果，可以直观地观察到 Semi-MARC 对尾部类别样本的增强作用及其在缓解类别不平衡问题上的具体贡献。以下内容将详细展示该分析结果。
+
+\begin{table}[!h]
+    \caption{CWRU 数据集上不同 $\beta$ 值下各方法在加入 Semi-MARC 策略前后的准确率变化}
+    \centering
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{ccccc}
+    \toprule
+    $\beta$ & 方法 & 加入 AutoAugment 后 & 加入 AutoAugment 与 Semi-MARC 后 & 涨幅 \\
+    \midrule
+    \multirow{5}{*}{1}   
+        & SimSiam & 92.08\% & 94.02\% & \textbf{+1.94\%} \\
+        & SimCLR  & 93.98\% & 95.50\% & +1.52\% \\
+        & BYOL    & 89.03\% & 89.83\% & +0.80\% \\
+        & MoCo v2 & 92.79\% & 94.02\% & +1.23\% \\
+        & SwAV    & 92.59\% & 93.85\% & +1.26\% \\
+    \midrule
+    \multirow{5}{*}{10}  
+        & SimSiam & 94.23\% & 96.24\% & +2.01\% \\
+        & SimCLR  & 94.58\% & 95.82\% & +1.24\% \\
+        & BYOL    & 89.42\% & 90.13\% & +0.71\% \\
+        & MoCo v2 & 82.92\% & 90.26\% & \textbf{+2.04\%} \\
+        & SwAV    & 93.53\% & 94.51\% & +0.98\% \\
+    \midrule
+    \multirow{5}{*}{50}  
+        & SimSiam & 91.31\% & 92.73\% & +1.42\% \\
+        & SimCLR  & 91.97\% & 94.12\% & +2.15\% \\
+        & BYOL    & 84.79\% & 88.24\% & \textbf{+3.45\%} \\
+        & MoCo v2 & 82.91\% & 85.07\% & \textbf{+3.16\%} \\
+        & SwAV    & 82.39\% & 84.14\% & +2.75\% \\
+    \midrule
+    \multirow{5}{*}{100} 
+        & SimSiam & 87.60\% & 91.45\% & +3.85\% \\
+        & SimCLR  & 90.04\% & 93.02\% & +2.98\% \\
+        & BYOL    & 81.12\% & 83.14\% & +2.02\% \\
+        & MoCo v2 & 83.75\% & 84.35\% & +0.60\% \\
+        & SwAV    & 82.40\% & 84.06\% & +1.66\% \\
+    \bottomrule
+    \end{tabular}
+    \label{tab:longtail_semimarc_comparison}
+\end{table}
+
+\begin{table}[!h]
+    \caption{PU 数据集上不同 $\beta$ 值下各方法在加入 Semi-MARC 策略前后的准确率变化}
+    \centering
+    \renewcommand\arraystretch{1.2}
+    \begin{tabular}{ccccc}
+    \toprule
+    $\beta$ & 方法 & 加入 AutoAugment 后 & 加入 AutoAugment 与 Semi-MARC 后 & 涨幅 \\
+    \midrule
+    \multirow{5}{*}{1}   
+        & SimSiam & 82.15\% & 84.04\% & \textbf{+1.89\%} \\
+        & SimCLR  & 82.00\% & 84.32\% & +2.32\% \\
+        & BYOL    & 75.54\% & 76.86\% & +1.32\% \\
+        & MoCo v2 & 79.38\% & 81.07\% & +1.69\% \\
+        & SwAV    & 76.62\% & 77.86\% & +1.24\% \\
+    \midrule
+    \multirow{5}{*}{10}  
+        & SimSiam & 79.54\% & 81.60\% & +2.06\% \\
+        & SimCLR  & 79.38\% & 80.62\% & +1.24\% \\
+        & BYOL    & 74.38\% & 75.32\% & +0.94\% \\
+        & MoCo v2 & 76.15\% & 77.49\% & +1.34\% \\
+        & SwAV    & 73.69\% & 74.41\% & +0.72\% \\
+    \midrule
+    \multirow{5}{*}{50}  
+        & SimSiam & 71.54\% & 74.96\% & +3.42\% \\
+        & SimCLR  & 73.00\% & 76.15\% & +3.15\% \\
+        & BYOL    & 63.92\% & 65.06\% & +1.14\% \\
+        & MoCo v2 & 74.00\% & 75.42\% & +1.42\% \\
+        & SwAV    & 72.92\% & 76.46\% & +3.54\% \\
+    \midrule
+    \multirow{5}{*}{100} 
+        & SimSiam & 70.08\% & 72.52\% & +2.44\% \\
+        & SimCLR  & 70.77\% & 72.65\% & +1.88\% \\
+        & BYOL    & 59.08\% & 60.40\% & +1.32\% \\
+        & MoCo v2 & 67.08\% & 68.48\% & +1.40\% \\
+        & SwAV    & 66.62\% & 67.48\% & +0.86\% \\
+    \bottomrule
+    \end{tabular}
+    \label{tab:longtail_semimarc_comparison_pu}
+\end{table}
+
+\subsection{长尾分布的数据集上训练时的各类别准确率变化}
+从图~\ref{fig:semi_marc_class_acc_for_beta} 中可以观察到，在引入 Semi-MARC 微调策略后，尾部类别(如 Class 8)的分类准确率显著提升，表明该方法在改善模型对低频类别判别能力方面表现出色。值得注意的是，虽然 Semi-MARC 的核心优化目标主要针对少样本类的边界判别力，但从图中结果来看，其对头部类与中部类的分类表现也具有一定的促进作用，这一现象在图~\ref{fig:semi_marc_class_acc_for_beta10}、图~\ref{fig:semi_marc_class_acc_for_beta50} 和图~\ref{fig:semi_marc_class_acc_for_beta100} 中表现得尤为明显。
+
+具体而言，在 $\beta=10$ 的轻度不平衡设置下，尾部类别的准确率首先获得了较为温和但稳定的提升，表明伪标签和边距调整机制已初步建立对尾类的有效补偿机制。而在 $\beta=50$ 与 $\beta=100$ 的高度不平衡条件下，尾部类别的准确率提升幅度更为显著，说明 Semi-MARC 能够根据类别分布适应性地调节判别边界，在数据倾斜较严重的场景下同样保持良好的泛化能力。
+
+值得一提的是，在绝大多数类别上引入 Semi-MARC 并未导致分类性能的下降。相反，头部类与中部类的准确率在一定程度上也有所提升。这可能得益于联合训练集 $\mathcal{D} = \mathcal{D}_L \cup \mathcal{D}_U$ 的构建机制在维持原始分布结构的同时，通过增加边缘样本提升了整体决策边界的清晰度，从而在全局范围内优化了类间隔。尤其是在中部类别上，这种正向迁移效应更为明显，表现为整体准确率的连续增长。
 
 \begin{figure}[h]
     \centering
     \subfloat[]{
-        \includegraphics[width=0.45\linewidth]{class_acc_for_beta=1_10avg.png}
+        \includegraphics[width=0.47\linewidth]{class_acc_for_beta=1_10avg.png}
         \label{fig:semi_marc_class_acc_for_beta1}
     }
     \subfloat[]{
-        \includegraphics[width=0.45\linewidth]{class_acc_for_beta=10.png}
+        \includegraphics[width=0.47\linewidth]{class_acc_for_beta=10.png}
         \label{fig:semi_marc_class_acc_for_beta10}
     }
     \par\medskip
     \subfloat[]{
-        \includegraphics[width=0.45\linewidth]{class_acc_for_beta=50.png}
+        \includegraphics[width=0.47\linewidth]{class_acc_for_beta=50.png}
         \label{fig:semi_marc_class_acc_for_beta50}
     }
     \subfloat[]{
-        \includegraphics[width=0.45\linewidth]{class_acc_for_beta=100.png}
+        \includegraphics[width=0.47\linewidth]{class_acc_for_beta=100.png}
         \label{fig:semi_marc_class_acc_for_beta100}
     }
-    \caption{不同$\beta$值下基于Semi-Marc微调的各类别准确率/宏平均召回率的变化 (a) $\beta=1$；(b) $\beta=10$；(c) $\beta=50$；(d) $\beta=100$}
+    \caption{不同$\beta$值下基于Semi-Marc微调的各类别准确率/宏平均召回率的变化(以SimSiam为例) (a) $\beta=1$；(b) $\beta=10$；(c) $\beta=50$；(d) $\beta=100$}
     \label{fig:semi_marc_class_acc_for_beta}
 \end{figure}
 
-Semi-MARC是一种架构，本身就可以作用于其他任何有无标签样本的网络。因此，以下研究了Semi-MARC对SimCLR，BYOL，CNN网络的作用。其中，SimCLR和BYOL取性能最高的Batch Size训练，即SimCLR的Batch Size为16，BYOL的Batch Size为128。
+此外，Semi-MARC 在保持编码器冻结的基础上，仅对分类器进行微调，并引入决策边界调节机制，有效缓解了类别间边界模糊的问题，从而进一步提升了模型的分类性能。该策略无需依赖复杂的数据增强操作，具备较低的计算开销与实现复杂度，仅需冻结特征提取层并对顶部分类器进行轻量级训练，因此在实际应用中具有良好的部署灵活性与扩展性，尤其适用于数据获取成本高、类别分布严重不均的故障诊断任务。
 
-从图\ref{all_models_before_after_semimarc}结果可以观察到，四种模型在引入 Semi-Marc 方法之后均表现出不同程度的性能提升，尤其是 SimSiam 和 BYOL 的准确率显著提高，分别从 0.9131 提升至 0.9454，以及从 0.8610 提升至 0.9297。值得注意的是，在未引入 Semi-Marc 时，SimCLR 以 0.9265 的准确率略高于 SimSiam，但在引入 Semi-Marc 后，SimSiam 凭借更显著的性能增益反超 SimCLR，最终以 0.9454 的准确率成为表现最优的模型。这一现象表明 Semi-Marc 对于基于对比学习的结构具有良好的兼容性与提升效果，尤其在 SimSiam 这类不依赖负样本对比的轻量化结构中，其辅助作用更加明显。同时，传统的 CNN 模型也获得了一定的性能改善，从 0.7420 提升至 0.7783，说明 Semi-Marc 并非仅对自监督模型有效，也具备一定的通用性。整体而言，Semi-Marc 能够有效缓解数据不平衡对模型训练的影响，并提升模型在长尾分布数据集条件下的特征表达能力，其在多个结构中的广泛适配性进一步验证了其作为一类通用增强策略的潜力与价值。
+Semi-MARC 作为一种轻量级的自监督模型优化方案，既提升了模型对无标签数据的利用效率，又显著增强了在尾部类别上的判别能力。图~\ref{fig:semi_marc_class_acc_for_beta} 系列进一步展示了其在多种不平衡强度下对各类别分类性能的改善趋势，尤其在尾部类上表现突出，同时也兼顾了头部与中部类别的性能稳定性，展现出良好的模型适应性与任务通用性。上述发现不仅验证了 Semi-MARC 在长尾场景下的有效性，也为后续提升对比学习模型在工业应用中的实用性与鲁棒性提供了新的研究方向。
 
-总的来说，Semi-Marc作为一种有效的模型微调架构，不仅能够提升网络对抗长尾效应的鲁棒性，而且能够对不同网络架构产生明显的性能优化效果，这为自监督学习模型提供了一种有力的优化手段。
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{all_models_before_after_semimarc.png}
-    \caption{SimSiam，SimCLR，BYOL，CNN在Semi-Marc微调前后的平均准确率/宏平均召回率柱状图}
-    \label{all_models_before_after_semimarc}
-\end{figure}
-\FloatBarrier  % 阻止后续浮动体越过这条线
 \subsection{消融实验}
-在本小节，基于CWRU数据集对训练过程中的参数进行了消融实验，主要包含各个阶段的“需要梯度”(Require Grad) 参数、无标签数据集规模、Batch Size、阶段一的网络模型。
+在本小节，基于CWRU数据集和PU数据集对本章的模型进行了消融实验。
+图~\ref{fig:all_models_before_after_semimarc} 和图~\ref{fig:all_models_before_after_semimarc_pu} 分别展示了五种主流对比学习方法(SimSiam、SimCLR、BYOL、MoCo v2 和 SwAV)在 CWRU 和 PU 两个数据集上，采用不同微调策略下的分类准确率表现。主要结论如下：
 
-\textbf{“需要梯度”}
+首先，在基础数据增强策略 AutoAugment 下，CWRU 数据集的五种模型准确率均处于较高水平，平均约为 92.13\%，而 PU 数据集准确率较低，平均约为 79.14\%，这反映了两个数据集在任务难度和数据分布上的差异。
 
-编码器参数“需要梯度”(Require Grad)是一个布尔类型的参数，它代表了在训练中是否对该模块的网络权重进行反向传播更新。在SimSiam对比学习阶段和半监督学习阶段都需要对该参数进行设置，表\ref{tab:require_grad_discuss}对该参数进行了实验。
-表中，fine\_tune\_requires\_grad 表示在 SimSiam 阶段是否对编码器(Encoder)的参数进行微调，semi\_requires\_grad 则表示在半监督学习阶段是否对编码器的参数进行微调。通过对比不同配置下的准确率，可以得出以下结论：
+引入半监督策略后，两个数据集的所有模型均实现了明显的性能提升。CWRU 数据集平均准确率提升至约 95.46\%，提升幅度显著，说明充分利用未标注数据有助于模型捕获更丰富的特征信息，提升泛化能力。PU 数据集准确率也从约 79.14\% 提升至约 80.32\%，表现出良好的增益，尤其对难度较高的 PU 数据集意义重大。
 
-\begin{itemize}
-    \item \textbf{SimSiam 阶段梯度更新对性能的影响}：当 fine\_tune\_requires\_grad 为 True 时，模型在 SimSiam 阶段对编码器参数进行微调。从表中可以看出，无论 semi\_requires\_grad 的配置如何，fine\_tune\_requires\_grad=True 时的平均准确率(0.9396 和 0.9398)略低于 fine\_tune\_requires\_grad=False 时的平均准确率(0.9409 和 0.9454)。这表明在 SimSiam 阶段冻结编码器参数可能有助于提升模型的整体性能。
+单独采用决策边距调整策略时，两个数据集模型表现同样有所提升，CWRU 数据集平均准确率约为 93.64\%，PU 数据集约为 79.93\%。虽然提升幅度略逊于半监督策略，但依然体现了通过调整模型决策边界增强分类判别力的有效性。
 
-    \item \textbf{半监督学习阶段梯度更新对性能的影响}：当 semi\_requires\_grad 为 False 时，模型在半监督学习阶段冻结编码器参数。从表中可以看出，semi\_requires\_grad为False 时的平均准确率(0.9398 和 0.9454)略高于 semi\_requires\_grad为True 时的平均准确率(0.9396 和 0.9409)。这表明在半监督学习阶段冻结编码器参数可能有助于进一步提升模型的性能。
+当半监督学习和决策边距调整策略结合使用时，两个数据集的模型准确率均达到最高水平。CWRU 数据集平均准确率达到约 95.82\%，PU 数据集也提升至约 80.83\%，显示两种策略在提升模型性能上具有良好互补性。特别是对复杂工况和数据稀缺的情况，联合策略显著促进了模型对故障特征的深度挖掘和判别能力。
 
-    \item \textbf{综合配置的影响}：当 fine\_tune\_requires\_grad=False 且 semi\_requires\_grad=False 时，模型在两个阶段均冻结编码器参数，此时的平均准确率最高(0.9454)。这表明在 SimSiam 和半监督学习阶段均冻结编码器参数可能是最优的配置方案。
-\end{itemize}
+综上所述，基于两类不同难度数据集的实验结果验证了多策略集成微调方法的有效性。半监督学习在提升模型泛化性上贡献最大，而决策边距调整策略则优化了分类边界。两者结合实现了对比学习模型在故障诊断任务中的显著性能提升，体现了该方法在工业应用中的广阔前景。
 
-综上所述，通过对不同梯度配置的实验分析，可以得出在 SimSiam 和半监督学习阶段冻结编码器参数有助于提升模型的整体性能。这一发现为后续研究提供了重要的参考依据。
+为了更深入理解无标签数据规模对模型性能的影响，本节进一步分析了不同规模的无监督数据在Semi-MARC微调框架下对五种主流对比学习方法分类准确率的作用效果。通过系统地调整无标签数据的数量，能够揭示数据量变化对模型泛化能力和判别能力的具体影响，为后续实际应用中无标签数据的合理利用提供指导依据。
 
-\begin{table}[h]
+\begin{figure}[H]
     \centering
-    \caption{不同配置下 Semi-Marc 方法的准确率/宏平均召回率，fine\_tune\_requires\_grad表示是否在SimSiam微调时微调编码器，semi\_requires\_grad表示是否在Semi时微调编码器}
-    \begin{tabular}{ccccccc}
-    \toprule
-    fine\_tune\_requires\_grad & semi\_requires\_grad & $\beta=1$ & $\beta=10$ & $\beta=50$ & $\beta=100$ & 平均值 \\
-    \midrule
-    True  & True  & 0.9727 & 0.9650 & 0.9185 & 0.9021 & 0.9396 \\
-    True  & False & 0.9681 & 0.9669 & 0.9229 & 0.9013 & 0.9398 \\
-    False & True  & 0.9746 & 0.9744 & 0.9175 & 0.8973 & 0.9409 \\
-    False & False & 0.9781 & 0.9623 & 0.9271 & 0.9142 & \textbf{0.9454} \\
-    \bottomrule
-    \end{tabular}
-    \label{tab:require_grad_discuss}
-\end{table}
+    \includegraphics[width=15cm]{all_models_before_after_semimarc.png}
+    \caption{CWRU数据集五种主流对比学习方法在不同微调策略(仅 AutoAugment，AutoAugment+半监督，AutoAugment+决策边距调整，AutoAugment+半监督结合决策边距调整)下的分类准确率对比}
+    \label{fig:all_models_before_after_semimarc}
+\end{figure}
 
-\textbf{无标签数据集规模}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=15cm]{all_models_before_after_semimarc_pu.png}
+    \caption{PU数据集五种主流对比学习方法在不同微调策略(仅 AutoAugment，AutoAugment+半监督，AutoAugment+决策边距调整，AutoAugment+半监督结合决策边距调整)下的分类准确率对比}
+    \label{fig:all_models_before_after_semimarc_pu}
+\end{figure}
+图~\ref{acc_vs_ssvsize_semimarc}展示了五种对比学习方法(SimSiam、SimCLR、BYOL、MoCo v2 和 SwAV)在不同无标签数据集规模下的分类准确率变化趋势，旨在探讨数据量对模型性能的影响。
 
-由于无标签数据集的规模直接决定了半监督学习所扩增的带有伪标签的数据集大小，因此无标签数据集规模对Semi-Marc SimSiam模型性能的影响至关重要。在以下实验中，固定了训练集的样本规模为100，并分别设置了无标签数据集的规模为100、200、500、1000和2000。根据图\ref{acc_vs_ssvsize_semimarc}的实验结果，随着无标签数据集规模的增加，Semi-Marc SimSiam的性能逐步提高。这表明，较大的无标签数据集有助于提升模型在自监督预训练阶段学习到的特征质量。
+在采用 Semi-MARC 微调策略的设定下，随着无标签样本规模从 100 增至 1000，各模型准确率普遍呈现上升趋势，表明更多未标注数据的引入有助于模型更充分地挖掘潜在语义特征，提升特征表征能力。然而，当无标签数据规模进一步扩大至 2000 时，部分模型(如 SimCLR 和 SimSiam)的准确率出现轻微波动，说明模型性能在一定数据规模后趋于饱和，存在边际效应递减的现象。
 
-然而，值得注意的是，当数据规模达到500及以上时，模型性能的提升趋于平稳，甚至在数据规模达到2000时，性能出现了微弱的下降。这一现象可能与以下几个因素有关：
+值得注意的是，MoCo v2 和 SwAV 在全程表现出稳定且持续上升的趋势，尤其在大规模数据下依然维持较高性能，显示其在利用未标注数据方面具备较强的鲁棒性与扩展性。相比之下，SimSiam 在小规模无标签数据条件下表现出较大波动，但在数据量达到 500 及以上时其准确率显著提升并趋于稳定，体现了其对数据规模敏感的特性。整体而言，该结果验证了无标签数据在增强对比学习模型性能方面的重要作用，同时也提示在实际应用中需合理平衡数据规模与模型复杂度，以实现最佳的训练效果。
 
-\begin{enumerate}[label={(\arabic*)}]
-    \item \textbf{数据冗余性：} 随着数据集规模的增大，训练数据的冗余性也随之增加，尤其是当无标签数据集的质量相对较低时，更多的无标签数据并没有提供足够的信息来进一步提升模型的性能。此时，模型可能受到冗余信息的干扰，导致训练效率降低，从而影响了性能提升。
-    \item \textbf{数据质量：} 在某些情况下，较大的无标签数据集可能包含更多噪声数据，这些噪声数据可能对模型学习到的深层特征产生负面影响。因此，随着数据规模的增加，模型的性能可能不再持续提高，甚至出现性能下降的情况。
-    \item \textbf{过拟合风险：} 当数据集规模过大时，模型可能过度依赖于训练数据中的某些特征，导致过拟合的风险增加，从而影响了模型在测试集上的泛化能力。
-\end{enumerate}
 
-综合来看，虽然增加无标签数据集的规模对模型性能有积极的促进作用，但当数据规模超过一定阈值后，性能提升趋于平稳，甚至可能出现下降。因此，在实际应用中，选择合适的无标签数据集规模，确保数据的多样性和质量，可能比单纯地增加数据量更为重要。
-
-% \begin{table}[h]
-%     \centering
-%     \caption{不同无标签数据集规模和不平衡因子$\beta$配置下的Semi-Marc SimSiam准确率}
-%     \begin{tabular}{ccccccc}
-%     \hline
-%     \textbf{无标签数据集规模} & \textbf{$\beta = 1$} & \textbf{$\beta = 10$} & \textbf{$\beta = 50$} & \textbf{$\beta = 100$} & \textbf{平均值} \\
-%     \hline
-%     100   & 0.8967 & 0.8975 & 0.8412 & 0.7840 & 0.8549 \\
-%     200   & 0.8813 & 0.8706 & 0.7669 & 0.7777 & 0.8241 \\
-%     500   & 0.9621 & 0.9698 & 0.8958 & 0.8444 & 0.9180 \\
-%     1000  & 0.9602 & 0.9544 & 0.9146 & 0.8946 & 0.9310 \\
-%     2000  & 0.9583 & 0.9538 & 0.9029 & 0.8967 & 0.9279 \\
-%     \hline
-%     \end{tabular}
-%     \label{tab:semi_marc_ssv_size}
-% \end{table}
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=12cm]{acc_vs_ssvsize_semimarc.png}
-    \caption{不同无标签数据集规模和不平衡因子$\beta$配置下的Semi-Marc SimSiam平均准确率/宏平均召回率折线图}
+    \caption{不同无标签数据集规模和不平衡因子$\beta$配置下的Semi-Marc平均准确率/宏平均召回率折线图}
     \label{acc_vs_ssvsize_semimarc}
 \end{figure}
 
-\textbf{Batch Size}
-
-以下探讨在自监督学习中，Batch Size 对 Semi-Marc 微调网络过程的影响。从图\ref{semimarc_acc_of_batch_size}可以看出，Semi-Marc SimSiam 对 Batch Size 的变化表现出较强的稳定性，而 Semi-Marc SimCLR 的性能则呈现出逐渐下降的趋势。具体而言，Semi-Marc SimCLR 在 Batch Size 为 16 时达到了最佳性能，而 BYOL 则在 Batch Size 为 128 时表现最优。因此，本文提出的 Semi-Marc SimSiam 网络在不同 Batch Size 设置下展现了更好的稳定性。相比之下，SimCLR 和 BYOL 在训练过程中对 Batch Size 的选择较为敏感，这可能会增加网络训练人员的工作量。
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=12cm]{semimarc_acc_of_batch_size.png}
-    \caption{不同Batch Size下SimSiam，SimCLR，BYOL经过Semi-Marc微调后的准确率/宏平均召回率变化图}
-    \label{semimarc_acc_of_batch_size}
-\end{figure}
-
-% \begin{table}[h]
-%     \centering
-%     \caption{不同Batch Size下Semi-Marc SimSiam的准确率}
-%     \begin{tabular}{cccccc}
-%     \hline
-%     \textbf{Batch Size} & \textbf{$\beta = 1$} & \textbf{$\beta = 10$} & \textbf{$\beta = 50$} & \textbf{$\beta = 100$} & \textbf{平均值} \\
-%     \hline
-%     16   & 0.9606 & 0.9567 & 0.9283 & 0.9031 & 0.9372 \\
-%     32   & 0.9627 & 0.9604 & 0.8910 & 0.8433 & 0.9144 \\
-%     64   & 0.9602 & 0.9544 & 0.9146 & 0.8946 & 0.9310 \\
-%     128  & 0.9538 & 0.9585 & 0.8946 & 0.8862 & 0.9233 \\
-%     256  & 0.9625 & 0.9781 & 0.8979 & 0.8652 & 0.9259 \\
-%     512  & 0.9358 & 0.9448 & 0.8908 & 0.8763 & 0.9119 \\
-%     \hline
-%     \end{tabular}
-%     \label{tab:diff_batch_size_semi_marc_acc_simsiam}
-% \end{table}
-
-% \begin{table}[h]
-%     \centering
-%     \caption{不同Batch Size下Semi-Marc SimCLR的准确率}
-%     \begin{tabular}{cccccc}
-%     \hline
-%     \textbf{Batch Size} & \textbf{$\beta = 1$} & \textbf{$\beta = 10$} & \textbf{$\beta = 50$} & \textbf{$\beta = 100$} & \textbf{平均值} \\
-%     \hline
-%     16   & 0.9398 & 0.9458 & 0.9198 & 0.9004 & 0.9264 \\
-%     32   & 0.9183 & 0.9142 & 0.8723 & 0.8335 & 0.8846 \\
-%     64   & 0.8554 & 0.8585 & 0.8623 & 0.8344 & 0.8527 \\
-%     128  & 0.8208 & 0.8267 & 0.8246 & 0.8117 & 0.8209 \\
-%     256  & 0.7367 & 0.7419 & 0.6767 & 0.6487 & 0.7010 \\
-%     512  & 0.7410 & 0.7408 & 0.6588 & 0.6165 & 0.6893 \\
-%     \hline
-%     \end{tabular}
-%     \label{tab:diff_batch_size_semi_marc_acc_simclr}
-% \end{table}
-
-% \begin{table}[h]
-%     \centering
-%     \caption{不同Batch Size下Semi-Marc BYOL的准确率}
-%     \begin{tabular}{cccccc}
-%     \hline
-%     \textbf{Batch Size} & \textbf{$\beta = 1$} & \textbf{$\beta = 10$} & \textbf{$\beta = 50$} & \textbf{$\beta = 100$} & \textbf{平均值} \\
-%     \hline
-%     16   & 0.9025 & 0.9092 & 0.8417 & 0.8127 & 0.8668 \\
-%     32   & 0.8894 & 0.8954 & 0.8621 & 0.8319 & 0.8697 \\
-%     64   & 0.9215 & 0.9129 & 0.8775 & 0.8346 & 0.8866 \\
-%     128  & 0.9502 & 0.9583 & 0.9054 & 0.9050 & 0.9297 \\
-%     256  & 0.9356 & 0.9306 & 0.8846 & 0.8998 & 0.9127 \\
-%     500  & 0.9369 & 0.9288 & 0.8529 & 0.8381 & 0.9142 \\
-%     \hline
-%     \end{tabular}
-%     \label{tab:diff_batch_size_semi_marc_acc_byol}
-% \end{table} 
 \FloatBarrier  % 阻止后续浮动体越过这条线
 \section{本章小结}
-
-本章通过结合半监督学习和MARC决策面调整的三阶段微调架构(Semi-Marc)，有效地减轻了长尾分布在有标签微调阶段对SimSiam分类层的负面影响，显著提高了SimSiam在CWRU数据集和PU数据集上的性能，超越了SimCLR。此外，通过消融实验分析了编码器的“需要梯度”(Require Grad)参数、无标签数据集规模、Batch Size对模型性能的影响。
-最后，作为一种通用架构，Semi-Marc在其他模型上的应用也证明了其有效性，表明该架构具有良好的普适性，能够在不同模型中提升性能。
+本章提出了一种结合半监督边距调整的两阶段微调架构(Semi-Marc)，有效缓解了有标签微调阶段长尾分布对对比学习故障诊断网络分类层的负面影响，显著提升了模型在CWRU数据集和PU数据集上的诊断性能。通过消融实验，进一步验证了各阶段设计对模型性能的贡献。作为一种通用优化框架，Semi-Marc在五种主流对比学习模型上的应用均表现出良好的效果，体现了其优越的适应性和广泛的应用潜力。
 
 \chapter{全文总结与展望}
 
 \section{全文总结}
+
 随着技术的不断发展，现代工业中的机械设备逐渐变得更加复杂，相应地，机械设备系统的故障种类也在不断增加。这导致在现实中，故障检测数据通常呈现长尾分布。然而，传统的智能故障诊断算法在处理此类长尾分布数据时，容易出现类别偏差，即模型倾向于将样本归类为头部类，而那些样本较少、但更具诊断价值和潜在危害的类别往往被忽视。此外，标注数据的获取通常需要付出高昂的时间和经济成本。
 
-针对这一问题，本文以机械部位轴承为研究对象，首先调研了故障诊断领域及其他领域(如计算机视觉)在解决长尾学习问题时采用的方法和思路，提出了一种基于自监督学习的长尾学习故障诊断框架。接着，本文提出了基于孪生网络对比学习的自监督预训练框架，并结合半监督学习与决策面调整算法的微调框架，针对CWRU数据集和PU数据集进行了实验与分析。
+针对这一问题，本文以机械部位轴承为研究对象，首先调研了故障诊断领域及其他领域（如计算机视觉）在解决长尾学习问题时采用的方法和思路，发现基于对比学习的孪生网络在应用于故障诊断任务时存在一定困难。为此，本文提出了一种基于自适应数据增强优化的对比学习故障诊断网络框架，并结合半监督学习与决策边界调整算法，设计了二阶段微调策略。所提出的方法在 CWRU 数据集和 PU 数据集上进行了系统实验，取得了良好的性能。
 
-本文的主要研究内容及结论如下：
-\begin{enumerate}[label={(\arabic*)}]
-    \item 提出了基于SimSiam简单孪生网络为骨干网络的自监督学习故障诊断框架，该框架通过对比学习进行训练。并提出了基于CMA-ES搜索最优数据增强策略的框架，为SimSiam提供了丰富有效的样本空间，解决了人工设计数据增强方法准确性和多样性不足的问题，从而使SimSiam能够学习到更深层次的语义特征。实验表明，相较于SOTA方法SimCLR和BYOL，SimSiam在CWRU数据集和PU数据集上的准确率较高仅次于SimCLR，成功减弱了长尾效应。SimSiam的优势在于无标签数据集的规模，但也存在边际效应。此外，SimSiam 在 Batch Size 变化下仍能保持稳定性能，而 SimCLR 在 Batch Size 增大时性能明显下降。
-    \item 结合优化了半监督学习与MARC决策面调整相结合的微调方法(Semi-Marc)，该方法与SimSiam自监督预训练组成了完整的三阶段自监督学习框架，显著减轻了长尾分布对SimSiam分类层的负面影响。实验证明，Semi-Marc方法是一种通用方法，能有效提升其他模型的性能，具有较好的普适性。经过该方法优化后SimSiam的性能成功超越了SimCLR。
-\end{enumerate}
+在自适应数据增强方面，本文引入 CMA-ES 算法作为控制器，根据线性评估准确率动态调整数据增强模块参数，从而在不依赖人工设计的前提下，提升增强样本的质量与多样性，促进孪生网络学习更深层次的语义特征。实验结果表明，该方法在 SimSiam、SimCLR、BYOL、SwAV 和 MoCo v2 等五种主流对比学习模型上均实现了显著性能提升，验证了其在缓解长尾分布问题上的有效性。
+
+同时，本文提出并优化了一种结合半监督学习与 MARC 边界调整策略的两阶段微调方法（Semi-Marc），在微调阶段引入边距调节机制，以减弱长尾分布对分类层的不利影响。实验显示，该方法具有良好的泛化性和迁移能力，显著增强了多种对比学习模型在故障诊断场景下的表现。
 
 \section{后续工作展望}
-虽然本文通过实验验证了该模型在轴承故障诊断中的有效性，但仍可进一步探索其适用性与稳定性。未来的研究方向如下：
 
-\begin{enumerate}[label={(\arabic*)}]
-    \item 本文提出的模型仅在轴承故障诊断中进行了验证，实际工业系统中涉及更多复杂的对象，如无人机系统等。因此，模型在其他领域中的有效性仍需进一步验证。
-    \item 本文虽然在理论上提出了SimSiam数据增强模块的设计方向，但关于SimSiam简单孪生网络所需的数据增强方法尚未得出明确结论。并且，CMA-ES算法在搜索最优数据增强解时可能存在计算效率问题。未来研究可能会尝试将CMA-ES算法替换为强化学习算法，以提高效率。
-    \item 本文在微调阶段未对原始数据集进行数据增强，因此，微调阶段的数据增强可能成为下一步的研究重点，例如通过生成对抗网络(GAN)进行数据增强。
-\end{enumerate}
+尽管本文所提出的方法在轴承故障诊断任务中验证了其有效性，但在适用性与稳定性方面仍存在进一步研究空间。首先，本文的研究仅在 CWRU 和 PU 轴承故障数据集上进行了验证，实际工业场景中还涉及无人机、智能制造系统等更为复杂的应用对象，未来可在更多真实场景中测试所提方法的泛化能力和鲁棒性。
+
+其次，虽然本文对孪生网络中的数据增强模块进行了设计优化，但尚未明确量化不同增强方式对模型性能的具体影响。此外，CMA-ES 在搜索最优数据增强策略过程中计算效率相对较低，未来可考虑引入强化学习等更高效的搜索方法进一步提升优化效率。
+
+最后，目前微调阶段并未采用任何数据增强策略，这在一定程度上限制了模型最终性能的发挥。未来可以考虑引入生成对抗网络（GAN）等技术，在微调阶段进行样本增强，从而提升模型在少样本及长尾分布场景下的表现能力。
 
 \thesisacknowledgement
-在攻读硕士学位期间，衷心感谢老师、同学们的关心、支持和帮助！
+在攻读硕士学位期间，衷心感谢凡时财教授、周雪教授和同学们的关心、支持和帮助！
 
 \thesisappendix
 
